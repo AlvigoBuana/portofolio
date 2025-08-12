@@ -7,19 +7,229 @@
   padding: 0;
   box-sizing: border-box;
 }
+
 :root {
   --pikachu-yellow: #FFD700; /* Emas */
   --pikachu-light: #FFEE58; /* Kuning terang */
   --neon-blue: #00FFFF; /* Biru neon */
   --active-yellow: #FFC300; /* Kuning aktif */
   --text-white: #f0f0f0;
-  --bg-dark: #0e0e0e; /* Hitam tapi gak pekat */
+  --bg-dark: #1a1a1a; /* Hitam modern, bukan hitam pekat */
 }
+
+/* Smooth scroll untuk semua element */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Rajdhani', sans-serif;
   background-color: var(--bg-dark);
   color: var(--text-white);
   line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Electric Grid Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
+  background-size: 80px 80px;
+  animation: gridPulse 8s ease-in-out infinite;
+  z-index: -3;
+}
+
+@keyframes gridPulse {
+  0%, 100% { 
+    opacity: 0.3;
+    transform: translateX(0px);
+  }
+  50% { 
+    opacity: 0.6;
+    transform: translateX(5px);
+  }
+}
+
+/* Electric Sparks */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle 2px at 15% 25%, rgba(255, 215, 0, 0.8), transparent),
+    radial-gradient(circle 1px at 85% 15%, rgba(255, 215, 0, 0.6), transparent),
+    radial-gradient(circle 3px at 30% 70%, rgba(255, 215, 0, 0.5), transparent),
+    radial-gradient(circle 1px at 70% 40%, rgba(255, 215, 0, 0.7), transparent),
+    radial-gradient(circle 2px at 50% 90%, rgba(255, 215, 0, 0.4), transparent),
+    radial-gradient(circle 1px at 90% 80%, rgba(255, 215, 0, 0.8), transparent),
+    radial-gradient(circle 2px at 10% 60%, rgba(255, 215, 0, 0.5), transparent),
+    radial-gradient(circle 1px at 60% 20%, rgba(255, 215, 0, 0.6), transparent);
+  animation: sparkle 4s ease-in-out infinite;
+  z-index: -2;
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  25% { 
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  50% { 
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  75% { 
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+/* Electric scan line - simpler and more visible */
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 215, 0, 0.3) 20%, 
+    rgba(255, 215, 0, 0.8) 50%,
+    rgba(255, 215, 0, 0.3) 80%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 10px rgba(255, 215, 0, 0.5),
+    0 0 20px rgba(255, 215, 0, 0.3);
+  animation: electricScan 10s linear infinite;
+  z-index: -1;
+}
+
+@keyframes electricScan {
+  0% { 
+    transform: translateY(-10vh);
+    opacity: 0;
+  }
+  10% { 
+    opacity: 1;
+  }
+  90% { 
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+}
+
+/* Geometric shapes animation - electric theme */
+.geometric-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -4;
+}
+
+/* Electric elements - simple but effective */
+.geometric-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -4;
+}
+
+.geometric-bg::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: 15%;
+  width: 4px;
+  height: 60px;
+  background: linear-gradient(180deg, 
+    transparent 0%,
+    rgba(255, 215, 0, 0.6) 20%,
+    rgba(255, 215, 0, 0.2) 40%,
+    rgba(255, 215, 0, 0.6) 60%,
+    transparent 100%
+  );
+  animation: electricBolt 6s ease-in-out infinite;
+}
+
+.geometric-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 25%;
+  left: 10%;
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(180deg, 
+    transparent 0%,
+    rgba(255, 215, 0, 0.4) 30%,
+    rgba(255, 215, 0, 0.8) 50%,
+    rgba(255, 215, 0, 0.4) 70%,
+    transparent 100%
+  );
+  animation: electricBolt 4s ease-in-out infinite reverse;
+}
+
+@keyframes electricBolt {
+  0%, 90%, 100% { 
+    opacity: 0.2;
+    transform: scaleY(1) scaleX(1);
+  }
+  10%, 80% { 
+    opacity: 0.8;
+    transform: scaleY(1.2) scaleX(2);
+  }
+  50% { 
+    opacity: 1;
+    transform: scaleY(0.8) scaleX(3);
+  }
+}
+
+/* Electric background layer - subtle gradients */
+.bg-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse 400px 200px at 20% 30%, rgba(255, 215, 0, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 150px at 80% 70%, rgba(255, 215, 0, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 200px 300px at 50% 10%, rgba(255, 215, 0, 0.04) 0%, transparent 70%);
+  animation: electricGlow 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -5;
+}
+
+@keyframes electricGlow {
+  0%, 100% { 
+    opacity: 0.5;
+    transform: translateY(0px);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: translateY(-10px);
+  }
 }
 
 /* ===== Navbar ===== */
@@ -48,18 +258,37 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
+/* Sliding glow effect untuk logo */
+@keyframes slideGlow {
+  0% { 
+    background-position: -200% 0; 
+  }
+  100% { 
+    background-position: 200% 0; 
+  }
+}
 
 .navbar-logo {
   font-size: 1.5rem;
   font-weight: bold;
-  background: linear-gradient(45deg, #ffea00, #ffcc00, #ffd700);
+  background: linear-gradient(90deg, 
+    rgba(255, 234, 0, 0.3) 0%, 
+    #ffea00 20%, 
+    #ffd700 50%, 
+    #ffcc00 80%, 
+    rgba(255, 234, 0, 0.3) 100%);
+  background-size: 200% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
-  text-shadow: 0 0 5px rgba(165, 113, 16, 0.8), 0 0 10px rgba(255, 255, 253, 0.6);
+  animation: slideGlow 3s ease-in-out infinite;
+  cursor: pointer; /* Menandakan bisa diklik */
+  transition: transform 0.2s ease;
 }
 
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
 
 .navbar-links {
   list-style: none;
@@ -82,6 +311,189 @@ body {
 .navbar-links a.active {
   color: #ffea00; /* kuning pikachu */
   text-shadow: 0 0 5px #ffea00, 0 0 10px #ffea00;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile Menu Toggle (Hamburger) */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  z-index: 1001;
+  transition: transform 0.3s ease;
+}
+
+.mobile-menu-toggle span {
+  width: 25px;
+  height: 3px;
+  background: var(--pikachu-yellow);
+  margin: 3px 0;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+/* Hamburger Animation */
+.mobile-menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(7px, 7px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(14, 14, 14, 0.98);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+.mobile-menu.active {
+  transform: translateX(0);
+}
+
+.mobile-menu-links {
+  list-style: none;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+.mobile-menu-links li {
+  margin: 2rem 0;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu.active .mobile-menu-links li:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu.active .mobile-menu-links li:nth-child(2) { animation-delay: 0.2s; }
+.mobile-menu.active .mobile-menu-links li:nth-child(3) { animation-delay: 0.3s; }
+.mobile-menu.active .mobile-menu-links li:nth-child(4) { animation-delay: 0.4s; }
+
+.mobile-menu-links a {
+  font-size: 2rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text-white);
+  transition: all 0.3s ease;
+  display: block;
+  padding: 0.5rem 1rem;
+}
+
+.mobile-menu-links a:hover,
+.mobile-menu-links a.active {
+  color: var(--pikachu-yellow);
+  text-shadow: 0 0 15px var(--pikachu-yellow);
+  transform: scale(1.1);
+}
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== MEDIA QUERIES ===== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 1rem 2rem;
+  }
+  
+  section {
+    padding: 4rem 2rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+  
+  .desktop-menu {
+    display: none;
+  }
+  
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .navbar-logo {
+    font-size: 1.3rem;
+  }
+  
+  section {
+    padding: 4rem 1.5rem;
+    min-height: auto;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.8rem 1rem;
+  }
+  
+  .navbar-logo {
+    font-size: 1.2rem;
+  }
+  
+  section {
+    padding: 3rem 1rem;
+  }
+  
+  .mobile-menu-links a {
+    font-size: 1.8rem;
+  }
+}
+
+/* ===== ADVANCED ANIMATIONS ===== */
+
+/* Fade in on scroll animation */
+@keyframes fadeInOnScroll {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading animation untuk text */
+.loading-text {
+  background: linear-gradient(90deg, transparent, var(--pikachu-yellow), transparent);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 /* ===== Footer ===== */
