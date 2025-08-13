@@ -14,5 +14,24 @@
     "typed.js": "^2.1.0",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1"
-  }
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
+  },
+  "version": "1.0.0",
+  "description": "Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlvigoBuana/portofolio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlvigoBuana/portofolio/issues"
+  },
+  "homepage": "https://github.com/AlvigoBuana/portofolio#readme"
 }
