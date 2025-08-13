@@ -1,87 +1,91 @@
 <template>
   <section id="home">
-    <!-- Background elements - will be handled by your existing CSS -->
+    <!-- Background elements -->
     <div class="scan-line"></div>
     <div class="bg-layer"></div>
     <div class="geometric-bg"></div>
-    
+
     <div class="content-wrapper">
-      <!-- Ready to Innovate Badge -->
-      <div class="innovation-badge">
-        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        <span>Ready to Innovate</span>
-      </div>
-      
-      <!-- Main Title -->
-      <h1 class="main-title">
-        <span class="title-frontend">Frontend</span>
-        <span class="title-developer">Developer</span>
-      </h1>
-      
-      <!-- Typing Effect -->
-      <div class="typing-container">
-        <span class="typing-text">
-          {{ currentText }}
-          <span class="cursor">|</span>
-        </span>
-      </div>
-      
-      <!-- Description -->
-      <p class="description">
-        Menciptakan Website Yang Inovatif, 
-        Fungsional, dan User-Friendly untuk Solusi 
-        Digital.
-      </p>
-      
-      <!-- Tech Stack Tags -->
-      <div class="tech-stack">
-        <span 
-          v-for="tech in techStack" 
-          :key="tech"
-          class="tech-tag"
-        >
-          {{ tech }}
-        </span>
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <button class="btn-projects" @click="goToProjects">
-          <span>Projects</span>
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </button>
-        
-        <button class="btn-contact" @click="goToContact">
-          <span>Contact</span>
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Social Links -->
-      <div class="social-links">
-        <a
-          v-for="social in socialMedia"
-          :key="social.name"
-          :href="social.href"
-          class="social-link"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img 
-            :src="social.image" 
-            :alt="social.name"
-            class="social-icon"
-          />
-        </a>
+      <div class="home-flex">
+        <!-- Kiri: konten teks -->
+        <div class="left-content">
+          <div class="innovation-badge fade-in" style="animation-delay: 0.1s">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Ready to Innovate</span>
+          </div>
+
+          <h1 class="main-title fade-in" style="animation-delay: 0.3s">
+            <span class="title-frontend">Frontend</span>
+            <span class="title-developer">Developer</span>
+          </h1>
+
+          <div class="typing-container fade-in" style="animation-delay: 0.5s">
+            <span class="typing-text">
+              {{ currentText }}
+              <span class="cursor">|</span>
+            </span>
+          </div>
+
+          <p class="description fade-in" style="animation-delay: 0.7s">
+            Still learning and exploring the world of web development.
+            I'm Alvigo Wahyu Buana, a tech and game enthusiast.
+            I like to creating innovative Web Development. 
+            Join me on this journey of discovery and growth
+          </p>
+
+          <div class="tech-stack fade-in" style="animation-delay: 0.9s">
+            <span 
+              v-for="tech in techStack" 
+              :key="tech"
+              class="tech-tag"
+            >
+              {{ tech }}
+            </span>
+          </div>
+
+          <div class="action-buttons fade-in" style="animation-delay: 1.1s">
+            <button class="btn-projects" @click="goToProjects">
+              <span>Projects</span>
+              <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </button>
+
+            <button class="btn-contact" @click="goToContact">
+              <span>Contact</span>
+              <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="social-links fade-in" style="animation-delay: 1.3s">
+            <a
+              v-for="social in socialMedia"
+              :key="social.name"
+              :href="social.href"
+              class="social-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img 
+                :src="social.image" 
+                :alt="social.name"
+                class="social-icon"
+              />
+            </a>
+          </div>
+        </div>
+
+        <!-- Kanan: Pikachu -->
+        <div class="right-content fade-in" style="animation-delay: 1.5s">
+          <img src="/public/pikachu.gif" alt="Pikachu" class="pikachu-anim" />
+        </div>
       </div>
     </div>
-    
+
     <!-- Decorative Electric Elements -->
     <div class="electric-accent electric-accent-right"></div>
     <div class="electric-accent electric-accent-left"></div>
@@ -91,54 +95,34 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 
-// Reactive data
 const currentText = ref('')
 const currentIndex = ref(0)
 const isDeleting = ref(false)
 const textIndex = ref(0)
 const typingInterval = ref(null)
 
-// Static data
 const texts = ['Alvigo Wahyu Buana', 'Tech & Game Enthusiast']
 const techStack = ['React', 'Javascript', 'Node.js', 'Tailwind']
 
-// Social media data with local images
 const socialMedia = [
-  {
-    name: 'github',
-    href: 'https://github.com/AlvigoBuana',
-    image: '/github.svg'
-  },
-  {
-    name: 'linkedin',
-    href: 'https://www.linkedin.com/in/alvigo-wahyu-buana-83bb712b6/',
-    image: '/linkedin.svg'
-  },
-  {
-    name: 'instagram',
-    href: 'https://instagram.com/alvgwb_',
-    image: '/instagram.svg'
-  }
+  { name: 'github', href: 'https://github.com/AlvigoBuana', image: '/github.svg' },
+  { name: 'linkedin', href: 'https://www.linkedin.com/in/alvigo-wahyu-buana-83bb712b6/', image: '/linkedin.svg' },
+  { name: 'instagram', href: 'https://instagram.com/alvgwb_', image: '/instagram.svg' }
 ]
 
-// Methods
 const startTyping = () => {
   typingInterval.value = setInterval(() => {
     const currentFullText = texts[textIndex.value]
-    
     if (!isDeleting.value) {
-      // Typing
       if (currentIndex.value < currentFullText.length) {
         currentText.value = currentFullText.substring(0, currentIndex.value + 1)
         currentIndex.value++
       } else {
-        // Wait before deleting
         setTimeout(() => {
           isDeleting.value = true
         }, 2000)
       }
     } else {
-      // Deleting
       if (currentIndex.value > 0) {
         currentText.value = currentFullText.substring(0, currentIndex.value - 1)
         currentIndex.value--
@@ -151,48 +135,76 @@ const startTyping = () => {
 }
 
 const goToProjects = () => {
-  // Navigate to projects section or route
-  const projectsSection = document.querySelector('#projects')
-  if (projectsSection) {
-    projectsSection.scrollIntoView({ behavior: 'smooth' })
-  }
+  const projectsSection = document.querySelector('#portofolio')
+  if (projectsSection) projectsSection.scrollIntoView({ behavior: 'smooth' })
 }
 
 const goToContact = () => {
-  // Navigate to contact section or route
   const contactSection = document.querySelector('#contact')
-  if (contactSection) {
-    contactSection.scrollIntoView({ behavior: 'smooth' })
-  }
+  if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' })
 }
 
-// Lifecycle
-onMounted(() => {
-  startTyping()
-})
-
+onMounted(() => startTyping())
 onUnmounted(() => {
-  if (typingInterval.value) {
-    clearInterval(typingInterval.value)
-  }
+  if (typingInterval.value) clearInterval(typingInterval.value)
 })
 </script>
 
 <style scoped>
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .home-section {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 6rem 3rem;
   position: relative;
 }
 
 .content-wrapper {
-  max-width: 32rem;
-  z-index: 10;
+  max-width: 1600px; /* biar ada jarak kanan kiri */
+  margin:  auto;
+  margin-top: 2px;
+  padding: 0 2rem;
+}
+/* Flex untuk kiri-kanan */
+.home-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+
+}/* Kolom kiri dibatasi biar nggak terlalu lebar */
+.left-content {
+  flex: 1 1 70%; /* ambil 55% lebar */
+}
+/* Kolom kanan buat pikachu */
+.right-content {
+  flex: 1 1 30%; /* ambil 45% lebar */
+  display: flex;
+  justify-content: center;
+}
+.pikachu-anim {
+  width: 480px;
+  max-width: 100%;
+  animation: floatAnim 3s ease-in-out infinite;
 }
 
+@keyframes floatAnim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
 /* Innovation Badge */
 .innovation-badge {
   display: inline-flex;
@@ -204,6 +216,7 @@ onUnmounted(() => {
   background: rgba(255, 94, 0, 0.384);
   backdrop-filter: blur(4px);
   margin-bottom: 2rem;
+  margin-top: 3rem;
   color: rgb(231, 192, 19);
   font-size: 0.875rem;
   font-weight: 500;
@@ -217,7 +230,7 @@ onUnmounted(() => {
 
 /* Main Title */
 .main-title {
-  font-size: 4rem;
+  font-size: 5rem;
   font-weight: bold;
   margin-bottom: 1rem;
   line-height: 1.1;
@@ -225,7 +238,7 @@ onUnmounted(() => {
 
 .title-frontend {
   display: block;
-  color: white;
+  color: rgb(255, 255, 255);
   margin-bottom: 0.5rem;
 }
 
@@ -244,7 +257,7 @@ onUnmounted(() => {
 }
 
 .typing-text {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 500;
   color: var(--pikachu-yellow);
 }
@@ -264,7 +277,7 @@ onUnmounted(() => {
   font-size: 1.125rem;
   line-height: 1.625;
   margin-bottom: 2rem;
-  max-width: 28rem;
+  max-width: 30rem;
 }
 
 /* Tech Stack */
@@ -272,7 +285,7 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .tech-tag {
@@ -296,8 +309,8 @@ onUnmounted(() => {
 /* Action Buttons */
 .action-buttons {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 3rem;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .btn-projects {
@@ -313,12 +326,14 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   transform: scale(1);
+  box-shadow: 0 2px 15px rgba(248, 121, 17, 0.671);
 }
 
 .btn-projects:hover {
   background: linear-gradient(135deg, var(--neon-blue), rgb(0, 173, 253));
   transform: scale(1.05);
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+  gap: 1rem;
+  box-shadow: 0 2px 15px rgba(37, 100, 235, 0.692);
   color: rgb(0, 0, 0);
 }
 
@@ -340,6 +355,7 @@ onUnmounted(() => {
   border: 1px solid rgb(75, 85, 99);
   background: transparent;
   color: rgb(209, 213, 219);
+  box-shadow: 0 2px 15px rgba(94, 92, 92, 0.671);
   border-radius: 0.5rem;
   font-weight: 600;
   cursor: pointer;
@@ -351,6 +367,8 @@ onUnmounted(() => {
   border-color: var(--pikachu-yellow);
   color: var(--pikachu-yellow);
   transform: scale(1.05);
+  box-shadow: 0 2px 15px rgba(255, 215, 0, 0.671);
+  gap: 1rem;
 }
 
 .btn-contact .btn-icon {
@@ -383,18 +401,20 @@ onUnmounted(() => {
   text-decoration: none;
   transition: all 0.3s ease;
   transform: scale(1);
+  box-shadow: 0 2px 15px rgba(94, 92, 92, 0.671);
 }
 
 .social-link:hover {
   border-color: var(--pikachu-yellow);
   color: var(--pikachu-yellow);
   transform: scale(1.1);
+  box-shadow: 0 2px 15px rgba(255, 215, 0, 0.671);
 }
 
 .social-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  transition: transform 0.3s ease;
+  width: 1.8rem;
+  height: 1/8rem;
+  transition: transform 0.3 ease ease-in-out;
   filter: brightness(0.8);
 }
 
@@ -462,6 +482,17 @@ onUnmounted(() => {
   .electric-accent-right {
     right: 1rem;
   }
+  .home-flex {
+    flex-direction: column;
+  }
+  .left-content,
+  .right-content {
+    flex: unset;
+    width: 100%;
+  }
+    .pikachu-anim {
+    width: 200px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -473,4 +504,5 @@ onUnmounted(() => {
     font-size: 1.125rem;
   }
 }
+
 </style>

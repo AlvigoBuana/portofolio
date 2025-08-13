@@ -4,10 +4,15 @@
     
     <!-- Desktop Menu -->
     <ul class="navbar-links desktop-menu">
-      <li><a href="#home" @click="onNavClick('home')" :class="{ active: activeSection === 'home' }">Home</a></li>
-      <li><a href="#about" @click="onNavClick('about')" :class="{ active: activeSection === 'about' }">About</a></li>
-      <li><a href="#portfolio" @click="onNavClick('portfolio')" :class="{ active: activeSection === 'portfolio' }">Portfolio</a></li>
-      <li><a href="#contact" @click="onNavClick('contact')" :class="{ active: activeSection === 'contact' }">Contact</a></li>
+      <li v-for="(item, index) in menuItems" :key="item.section">
+        <a
+          :href="'#' + item.section"
+          @click="onNavClick(item.section)"
+          :class="{ active: activeSection === item.section }"
+        >
+          {{ item.label }}
+        </a>
+      </li>
     </ul>
 
     <!-- Mobile Menu Toggle -->
@@ -20,10 +25,19 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" :class="{ active: isMobileMenuOpen }">
       <ul class="mobile-menu-links">
-        <li><a href="#home" @click="onNavClick('home')" :class="{ active: activeSection === 'home' }">Home</a></li>
-        <li><a href="#about" @click="onNavClick('about')" :class="{ active: activeSection === 'about' }">About</a></li>
-        <li><a href="#portfolio" @click="onNavClick('portfolio')" :class="{ active: activeSection === 'portfolio' }">Portfolio</a></li>
-        <li><a href="#contact" @click="onNavClick('contact')" :class="{ active: activeSection === 'contact' }">Contact</a></li>
+        <li
+          v-for="(item, index) in menuItems"
+          :key="'mobile-' + item.section"
+          :style="{ animationDelay: isMobileMenuOpen ? (0.1 * (index + 1)) + 's' : '0s' }"
+        >
+          <a
+            :href="'#' + item.section"
+            @click="onNavClick(item.section)"
+            :class="{ active: activeSection === item.section }"
+          >
+            {{ item.label }}
+          </a>
+        </li>
       </ul>
     </div>
   </header>
@@ -31,6 +45,13 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+const menuItems = [
+  { section: 'home', label: 'Home' },
+  { section: 'about', label: 'About' },
+  { section: 'portofolio', label: 'Portofolio' },
+  { section: 'contact', label: 'Contact' }
+]
 
 const activeSection = ref('home')
 const isHidden = ref(false)
@@ -43,17 +64,14 @@ const handleScroll = () => {
   const currentScroll = window.scrollY
 
   // Active section logic
-  const sections = ['home', 'about', 'portfolio', 'contact']
   const navbarHeight = 100
   let current = 'home'
-  
-  for (let i = sections.length - 1; i >= 0; i--) {
-    const section = document.getElementById(sections[i])
+  for (let i = menuItems.length - 1; i >= 0; i--) {
+    const section = document.getElementById(menuItems[i].section)
     if (section) {
       const sectionTop = section.offsetTop - navbarHeight
-      
       if (currentScroll >= sectionTop) {
-        current = sections[i]
+        current = menuItems[i].section
         break
       }
     }
@@ -66,7 +84,7 @@ const handleScroll = () => {
   if (!isClickScrolling) {
     if (currentScroll > lastScroll && currentScroll > 100) {
       isHidden.value = true
-      isMobileMenuOpen.value = false // Close mobile menu saat scroll
+      isMobileMenuOpen.value = false
     } else {
       isHidden.value = false
     }
@@ -78,7 +96,7 @@ const handleScroll = () => {
 const handleLinkClick = () => {
   isClickScrolling = true
   isHidden.value = false
-  isMobileMenuOpen.value = false // Close mobile menu after click
+  isMobileMenuOpen.value = false
   setTimeout(() => {
     isClickScrolling = false
   }, 800)
@@ -90,16 +108,10 @@ const toggleMobileMenu = () => {
 
 const onNavClick = (section) => {
   activeSection.value = section
-  
-  // Scroll ke section yang diklik
   const targetSection = document.getElementById(section)
   if (targetSection) {
-    targetSection.scrollIntoView({ 
-      behavior: 'smooth',
-      block: 'start' 
-    })
+    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
-  
   handleLinkClick()
 }
 
