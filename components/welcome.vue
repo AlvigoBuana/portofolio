@@ -1,20 +1,22 @@
 <template>
   <section class="welcome-screen" :class="{ 'fade-out': fadeOut }">
     <div class="welcome-content">
-      <!-- Icons -->
       <div class="icon-row">
-        <div v-for="(icon, index) in icons" :key="index" class="icon-wrapper" :style="{ animationDelay: `${index * 0.2}s` }">
+        <div 
+          v-for="(icon, index) in icons" 
+          :key="index" 
+          class="icon-wrapper g-fade-in-up" 
+          :style="{ animationDelay: `${index * 0.2}s` }"
+        >
           <img :src="icon" alt="icon" class="icon" />
         </div>
       </div>
 
-      <!-- Title -->
       <h1 class="welcome-title">
-        <span class="fade-left">Welcome</span>
-        <span class="fade-right">to My Portfolio</span>
+        <span class="g-fade-in-left">Welcome</span>
+        <span class="g-fade-in-right" :style="{ animationDelay: '0.4s' }">to My Portfolio</span>
       </h1>
 
-      <!-- Typing Link -->
       <p class="welcome-link">
         <span>{{ typedText }}</span><span class="cursor">|</span>
       </p>
@@ -23,32 +25,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineEmits } from 'vue'
 
-// Icons (sesuaikan path-nya)
+// 1. Definisikan sinyal yang bisa dikirim komponen ini
+const emit = defineEmits(['animationFinished'])
+
+// Path ikon dan logika typing tidak berubah
 const icons = [
   '/github.svg',
   '/linkedin.svg',
   '/instagram.svg'
 ]
-const props = defineProps({
-  startAnimation: { type: Boolean, default: false }
-})
-
 const typedText = ref('')
 const fullText = 'www.alvigowb.com'
 let charIndex = 0
 const fadeOut = ref(false)
 
-watch(() => props.startAnimation, (newVal) => {
-  if (newVal) {
-    document.querySelectorAll('.fade-in').forEach(el => {
-      el.style.animationPlayState = 'running'
-    })
-  }
-})
 onMounted(() => {
-  // Typing effect
   const typeInterval = setInterval(() => {
     if (charIndex < fullText.length) {
       typedText.value += fullText.charAt(charIndex)
@@ -58,10 +51,16 @@ onMounted(() => {
     }
   }, 100)
 
-  // Auto fade out sesuai durasi
+  // 2. Logika waktu yang disinkronkan
   setTimeout(() => {
-    fadeOut.value = true
-  }, 3000)
+    fadeOut.value = true // Ini memicu animasi fade-out (durasi 1 detik)
+
+    // Tunggu animasi selesai (1000ms = 1 detik)
+    setTimeout(() => {
+      // 3. Kirim sinyal 'animationFinished' ke parent (App.vue)
+      emit('animationFinished')
+    }, 1000) 
+  }, 3000) // Mulai proses fade-out setelah 3 detik
 })
 </script>
 
@@ -74,12 +73,13 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  transition: opacity 1s ease;
+  transition: opacity 1s ease, visibility 1s ease;
+  visibility: visible;
 }
 
 .welcome-screen.fade-out {
   opacity: 0;
-  pointer-events: none;
+  visibility: hidden;
 }
 
 .welcome-content {
@@ -95,9 +95,7 @@ onMounted(() => {
 }
 
 .icon-wrapper {
-  opacity: 0;
-  transform: translateY(-20px);
-  animation: fadeInUp 0.6s forwards;
+  /* opacity: 0; dan transform awal sudah dipindahkan ke kelas global */
 }
 
 .icon {
@@ -112,26 +110,20 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-.fade-left {
+.welcome-title span {
   display: inline-block;
-  opacity: 0;
-  transform: translateX(-30px);
-  animation: fadeInLeft 0.8s forwards;
+  /* opacity: 0; sudah dipindahkan ke kelas global */
 }
 
-.fade-right {
-  display: inline-block;
+.welcome-title span:nth-child(2) {
   margin-left: 10px;
-  opacity: 0;
-  transform: translateX(30px);
-  animation: fadeInRight 0.8s forwards;
-  animation-delay: 0.2s;
 }
 
 .welcome-link {
   font-size: 1.2rem;
   color: var(--pikachu-yellow);
   margin-top: 0.5rem;
+  /* Dihapus: animasi fade-in agar hanya ada efek ketik */
 }
 
 .cursor {
@@ -139,45 +131,11 @@ onMounted(() => {
   width: 2px;
   background: var(--pikachu-yellow);
   animation: blink 1s infinite;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInLeft {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes fadeInRight {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  animation-delay: 2.2s;
 }
 
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
-}
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.8s ease-out forwards;
-  animation-play-state: paused; /* awalnya pause */
-}
-
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 </style>
