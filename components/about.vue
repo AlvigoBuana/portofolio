@@ -34,21 +34,21 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-item animated-stat-1" @click="scrollToPortfolio">
+        <div class="stat-item animated-stat-1" @click="scrollToPortfolio('projects')">
           <div class="stat-icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg></div>
           <span class="stat-number">10+</span>
           <p class="stat-title">TOTAL PROJECTS</p>
-          <p class="stat-desc">Innovative web solutions crafted</p>
+          <p class="stat-desc">Innovative web solutions</p>
           <div class="stat-arrow">➔</div>
         </div>
-        <div class="stat-item animated-stat-2" @click="scrollToPortfolio">
+        <div class="stat-item animated-stat-2" @click="scrollToPortfolio('certificates')">
           <div class="stat-icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg></div>
           <span class="stat-number">5+</span>
           <p class="stat-title">CERTIFICATES</p>
           <p class="stat-desc">Professional skills validated</p>
           <div class="stat-arrow">➔</div>
         </div>
-        <div class="stat-item animated-stat-3" @click="scrollToPortfolio">
+        <div class="stat-item animated-stat-3" @click="scrollToPortfolio('tech-stack')">
           <div class="stat-icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m-9 9a9 9 0 019-9"></path></svg></div>
           <span class="stat-number">1+</span>
           <p class="stat-title">YEARS OF EXPERIENCE</p>
@@ -56,31 +56,27 @@
           <div class="stat-arrow">➔</div>
         </div>
       </div>
-
     </div>
   </section>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-
 const aboutSectionRef = ref(null);
 let observer;
 let lastScrollY = window.scrollY;
 let scrollDirection = 'down';
-
-const scrollToPortfolio = () => {
+const scrollToPortfolio = (targetTab = 'projects') => {
+  window.location.hash = `portofolio?tab=${targetTab}`;
   const portfolioSection = document.querySelector('#portofolio');
   if (portfolioSection) {
     portfolioSection.scrollIntoView({ behavior: 'smooth' });
   }
 };
-
 const handleWindowScroll = () => {
   scrollDirection = window.scrollY > lastScrollY ? 'down' : 'up';
   lastScrollY = window.scrollY;
 };
-
 const handleIntersection = (entries) => {
   const entry = entries[0];
   if (entry.isIntersecting) {
@@ -89,7 +85,6 @@ const handleIntersection = (entries) => {
     entry.target.classList.remove('in-view');
   }
 };
-
 onMounted(() => {
   window.addEventListener('scroll', handleWindowScroll);
   observer = new IntersectionObserver(handleIntersection, { threshold: 0.1 });
@@ -97,7 +92,6 @@ onMounted(() => {
     observer.observe(aboutSectionRef.value);
   }
 });
-
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', handleWindowScroll);
   if (observer) observer.disconnect();

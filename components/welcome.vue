@@ -95,7 +95,7 @@ onMounted(() => {
 }
 
 .icon-wrapper {
-  /* opacity: 0; dan transform awal sudah dipindahkan ke kelas global */
+  opacity: 0;
 }
 
 .icon {
