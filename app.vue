@@ -18,13 +18,14 @@
     <Portfolio />
     <Contact />
     <Footer />
+    <SpeedInsights />
   </main>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import '~/assets/styles.css'
-
+import { SpeedInsights } from "@vercel/speed-insights/nuxt"
 import WelcomeScreen from '~/components/welcome.vue'
 import Navbar from '~/components/navbar.vue'
 import Home from '~/components/home.vue'
@@ -113,4 +114,5 @@ onBeforeUnmount(() => {
     cancelAnimationFrame(animationFrameId);
   }
 });
+
 </script>
