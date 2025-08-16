@@ -1,9 +1,5 @@
 <template>
   <section id="portofolio" ref="portfolioSectionRef">
-    <div class="aurora-bg">
-      <div class="aurora-dot aurora-dot-1"></div>
-      <div class="aurora-dot aurora-dot-2"></div>
-    </div>
     <div class="content-wrapper">
 
       <div class="title-block">
@@ -44,7 +40,7 @@
             </div>
             <div class="see-more-wrapper">
               <button v-if="projectsToShow < projects.length" @click="showMoreProjects" class="btn-see-more">See More</button>
-              <button v-if="projectsToShow > 4" @click="showLessProjects" class="btn-see-more">See Less</button>
+              <button v-if="isShowingAll" @click="showLessProjects" class="btn-see-more">See Less</button>
             </div>
           </div>
           <div v-else-if="activeTab === 'certificates'" class="grid certificate-grid">
@@ -94,10 +90,11 @@ const updateInitialCount = (forceReset = false) => {
   if (screenWidth >= 1400) { newInitialCount = initialDesktopCount; } 
   else if (screenWidth >= 768) { newInitialCount = initialTabletCount; }
   initialCount.value = newInitialCount;
-  if (forceReset || projectsToShow.value !== projects.value.length) {
+  if (forceReset || !isShowingAll.value) {
     projectsToShow.value = newInitialCount;
   }
 };
+const isShowingAll = computed(() => projectsToShow.value === projects.value.length);
 
 const certificates = ref([
   { title: 'Front-End Web Development', issuer: 'Dicoding', imageUrl: '/certs/cert1.jpg' },
@@ -157,18 +154,12 @@ onBeforeUnmount(() => {
 /* ==== WRAPPER & BACKGROUND ==== */
 #portofolio {
   position: relative;
+  /* Dihapus: background-color dan border-top agar menyatu */
   overflow: hidden;
+  padding-top: 50px;
 }
 
-
-@keyframes aurora-drift {
-  from {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  to {
-    transform: translate(100px, 50px) rotate(60deg);
-  }
-}
+/* DIHAPUS: Blok .aurora-bg, .aurora-dot, dan @keyframes aurora-drift */
 
 /* ==== CONTENT WRAPPER ==== */
 .content-wrapper {
@@ -228,10 +219,8 @@ onBeforeUnmount(() => {
 }
 
 .portfolio-nav button:hover {
-  background: var(--neon-blue);
-  color: black;
-  transform: translateY(-2px);
-  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
 }
 
 .portfolio-nav button.active {
@@ -253,16 +242,21 @@ onBeforeUnmount(() => {
 
 /* ==== PROJECTS GRID ==== */
 .project-grid {
-  grid-template-columns: 1fr; /* Default untuk HP */
+  grid-template-columns: 1fr;
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .project-grid {
-    grid-template-columns: repeat(3, 1fr); /* Tablet */
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .project-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 @media (min-width: 1400px) {
   .project-grid {
-    grid-template-columns: repeat(4, 1fr); /* Desktop */
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -275,6 +269,11 @@ onBeforeUnmount(() => {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 12px;
+}
+
+.project-card,
+.certificate-card,
+.tech-item {
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -283,7 +282,7 @@ onBeforeUnmount(() => {
 .tech-item:hover {
   transform: translateY(-5px);
   border-color: var(--pikachu-yellow);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
 /* Project card detail */
@@ -409,7 +408,7 @@ onBeforeUnmount(() => {
   gap: 1.5rem;
   max-width: 1200px;
   margin: 2rem auto;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* Diubah untuk mobile */
 }
 @media (min-width: 768px) {
   .tech-stack-container {
@@ -444,7 +443,7 @@ onBeforeUnmount(() => {
   color: var(--text-white);
 }
 
-/* ==== ANIMATIONS ==== */
+/* ==== ANIMATIONS (scroll-in & tab fade) ==== */
 .title-block,
 .portfolio-nav,
 .portfolio-content {
@@ -527,15 +526,20 @@ onBeforeUnmount(() => {
   transition-delay: 0.4s;
 }
 
+/* ==== RESPONSIVE ==== */
 @media (max-width: 768px) {
   .portfolio-nav {
     grid-template-columns: 1fr;
   }
-  .tech-stack-container {
-    grid-template-columns: repeat(4, 1fr);
-  }
   .section-title {
     font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Diubah: Penyesuaian untuk layar mobile */
+  .tech-stack-container {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 </style>

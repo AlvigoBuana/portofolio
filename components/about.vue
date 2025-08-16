@@ -3,21 +3,21 @@
     <div class="content-wrapper">
       
       <div class="title-block">
-        <h2 class="section-title animated-title">About Me</h2>
-        <p class="subtitle animated-subtitle">⚡️ Nothing last forever, we can change the future ⚡️</p>
+        <h2 class="section-title animated-item">About Me</h2>
+        <p class="subtitle animated-item">⚡️ Nothing last forever, we can change the future ⚡️</p>
       </div>
 
       <div class="intro-flex">
         <div class="intro-text">
-          <h1 class="animated-hello">Hello, I'm<br><span class="highlight-name">Alvigo Wahyu Buana</span></h1>
-          <p class="bio animated-bio">
+          <h1 class="animated-item from-left">Hello, I'm<br><span class="highlight-name">Alvigo Wahyu Buana</span></h1>
+          <p class="bio animated-item from-left">
             A passionate web developer with a knack for creating innovative solutions. I specialize in crafting responsive and user-friendly websites that not only look great but also perform seamlessly across all devices.
             With a strong foundation in HTML, CSS, and JavaScript, I bring ideas to life through clean and efficient code. My goal is to leverage technology to solve real-world problems and enhance user experiences.
           </p>
-          <div class="quote animated-quote">
+          <div class="quote animated-item from-left">
             <p>"If you're not a goodshoot today. Don't worry, there are other ways to be useful"</p>
           </div>
-          <div class="action-buttons animated-buttons">
+          <div class="action-buttons animated-item">
             <a href="https://docs.google.com/document/d/1WK3gCM0rMtvzw2dw22KOVe1nULW5ojsFqohXWfrb_X4/edit?usp=sharing" download class="btn btn-primary">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
               <span>Download CV</span>
@@ -28,27 +28,27 @@
             </a>
           </div>
         </div>
-        <div class="intro-photo animated-photo">
+        <div class="intro-photo animated-item from-right">
           <img src="/profile.png" alt="Alvigo Wahyu Buana">
         </div>
       </div>
 
       <div class="stats-grid">
-        <div class="stat-item animated-stat-1" @click="scrollToPortfolio('projects')">
+        <div class="stat-item animated-item" @click="scrollToPortfolio('projects')">
           <div class="stat-icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg></div>
           <span class="stat-number">10+</span>
           <p class="stat-title">TOTAL PROJECTS</p>
           <p class="stat-desc">Innovative web solutions</p>
           <div class="stat-arrow">➔</div>
         </div>
-        <div class="stat-item animated-stat-2" @click="scrollToPortfolio('certificates')">
+        <div class="stat-item animated-item" @click="scrollToPortfolio('certificates')">
           <div class="stat-icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg></div>
           <span class="stat-number">5+</span>
           <p class="stat-title">CERTIFICATES</p>
           <p class="stat-desc">Professional skills validated</p>
           <div class="stat-arrow">➔</div>
         </div>
-        <div class="stat-item animated-stat-3" @click="scrollToPortfolio('tech-stack')">
+        <div class="stat-item animated-item" @click="scrollToPortfolio('tech-stack')">
           <div class="stat-icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m-9 9a9 9 0 019-9"></path></svg></div>
           <span class="stat-number">1+</span>
           <p class="stat-title">YEARS OF EXPERIENCE</p>
@@ -99,24 +99,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* semua CSS asli kamu di sini, ditambah panah */
-.stat-item {
-  position: relative;
-}
-
-.stat-arrow {
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  font-size: 1.2rem;
-  color: var(--pikachu-yellow);
-  transform: rotate(45deg);
-  transition: transform 0.3s ease;
-}
-
-.stat-item:hover .stat-arrow {
-  transform: rotate(0deg);
-}
+/* ===== STRUKTUR UTAMA ===== */
 .content-wrapper {
   max-width: 1600px;
   margin: 0 auto;
@@ -128,6 +111,20 @@ onBeforeUnmount(() => {
   margin-bottom: 4rem;
 }
 
+.intro-flex {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  margin-bottom: 4rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* ===== KONTEN & TIPOGRAFI ===== */
 .section-title {
   font-size: 3rem;
   font-weight: 700;
@@ -140,18 +137,37 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 
-/* FLEXBOX UTAMA */
-.intro-flex {
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-  margin-bottom: 4rem;
-}
-
 .intro-text {
   flex: 1;
 }
 
+.intro-text h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.highlight-name {
+  color: var(--pikachu-yellow);
+}
+
+.bio {
+  color: rgb(209, 213, 219);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.quote {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--pikachu-yellow);
+  padding: 1rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+  color: rgb(209, 213, 219);
+}
+
+/* ===== FOTO PROFIL ===== */
 .intro-photo {
   flex: 1;
   display: flex;
@@ -195,32 +211,7 @@ onBeforeUnmount(() => {
   transform: translateX(100%) skewX(-20deg);
 }
 
-.intro-text h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-}
-
-.highlight-name {
-  color: var(--pikachu-yellow);
-}
-
-.bio {
-  color: rgb(209, 213, 219);
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-}
-
-.quote {
-  background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--pikachu-yellow);
-  padding: 1rem;
-  margin-bottom: 2rem;
-  font-style: italic;
-  color: rgb(209, 213, 219);
-}
-
+/* ===== TOMBOL (BUTTONS) ===== */
 .action-buttons {
   display: flex;
   gap: 1rem;
@@ -251,7 +242,7 @@ onBeforeUnmount(() => {
 
 .btn-primary:hover {
   transform: translateY(-3px);
-  color : var(--text-white);
+  color: var(--text-white);
   border-color: var(--text-white);
   box-shadow: 0 4px 20px rgba(0, 204, 255, 0.4);
   background: linear-gradient(45deg, rgba(0, 217, 255, 0.8), rgba(76, 0, 255, 0.2));
@@ -270,14 +261,9 @@ onBeforeUnmount(() => {
   box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
 }
 
-/* STATISTIK */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
+/* ===== KARTU STATISTIK (STAT ITEMS) ===== */
 .stat-item {
+  position: relative;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgb(75, 85, 99);
   padding: 1.5rem;
@@ -316,36 +302,51 @@ onBeforeUnmount(() => {
   color: rgb(156, 163, 175);
 }
 
-/* ANIMASI */
-.animated-title, .animated-subtitle, .animated-hello, .animated-bio, .animated-quote, .animated-buttons, .animated-photo, .stat-item {
+.stat-arrow {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--pikachu-yellow);
+  transform: rotate(-45deg);
+  transition: transform 0.3s ease;
+}
+
+.stat-item:hover .stat-arrow {
+  transform: rotate(0deg);
+}
+
+/* ===== ANIMASI (DIREFAKTOR) ===== */
+.animated-item {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
-.animated-hello, .animated-bio, .animated-quote {
+.from-left {
   transform: translateX(-50px);
 }
 
-.animated-photo {
+.from-right {
   transform: translateX(50px);
 }
 
-#about.in-view .animated-subtitle { transition-delay: 0.2s; }
-#about.in-view .animated-hello { transition-delay: 0.4s; }
-#about.in-view .animated-bio { transition-delay: 0.6s; }
-#about.in-view .animated-photo { transition-delay: 0.6s; }
-#about.in-view .animated-quote { transition-delay: 0.8s; }
-#about.in-view .animated-buttons { transition-delay: 1s; }
-#about.in-view .stat-item:nth-child(1) { transition-delay: 1s; }
-#about.in-view .stat-item:nth-child(2) { transition-delay: 1.2s; }
-#about.in-view .stat-item:nth-child(3) { transition-delay: 1.4s; }
-#about.in-view .animated-title, #about.in-view .animated-subtitle, #about.in-view .animated-hello, #about.in-view .animated-bio, #about.in-view .animated-quote, #about.in-view .animated-buttons, #about.in-view .animated-photo, #about.in-view .stat-item {
+#about.in-view .animated-item {
   opacity: 1;
   transform: translate(0, 0);
 }
 
-/* RESPONSIVE */
+/* Delay diatur berdasarkan urutan elemen di dalam parent-nya */
+#about.in-view .animated-item:nth-of-type(1) { transition-delay: 0.2s; }
+#about.in-view .animated-item:nth-of-type(2) { transition-delay: 0.4s; }
+#about.in-view .animated-item:nth-of-type(3) { transition-delay: 0.6s; }
+#about.in-view .animated-item:nth-of-type(4) { transition-delay: 0.8s; }
+#about.in-view .animated-item:nth-of-type(5) { transition-delay: 1.0s; }
+#about.in-view .stats-grid .animated-item:nth-of-type(1) { transition-delay: 1.0s; }
+#about.in-view .stats-grid .animated-item:nth-of-type(2) { transition-delay: 1.2s; }
+#about.in-view .stats-grid .animated-item:nth-of-type(3) { transition-delay: 1.4s; }
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
   .intro-flex {
     flex-direction: column-reverse;
@@ -366,8 +367,7 @@ onBeforeUnmount(() => {
 @media (min-width: 1024px) {
   .bio,
   .quote {
-    max-width: 650px; /* atur sesuai lebar kotak hijau yang kamu mau */
+    max-width: 650px;
   }
 }
-
 </style>

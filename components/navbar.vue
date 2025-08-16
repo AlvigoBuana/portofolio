@@ -4,7 +4,7 @@
     
     <ul class="navbar-links desktop-menu">
       <li v-for="item in menuItems" :key="item.section">
-        <a :href="'#' + item.section" @click="onNavClick(item.section)" :class="{ active: activeSection === item.section }">
+        <a :href="'#' + item.section" @click.prevent="onNavClick(item.section)" :class="{ active: activeSection === item.section }">
           {{ item.label }}
         </a>
       </li>
@@ -19,7 +19,7 @@
     <div class="mobile-menu" :class="{ active: isMobileMenuOpen }">
       <ul class="mobile-menu-links">
         <li v-for="(item, index) in menuItems" :key="'mobile-' + item.section" :style="{ animationDelay: isMobileMenuOpen ? (0.1 * (index + 1)) + 's' : '0s' }">
-          <a :href="'#' + item.section" @click="onNavClick(item.section)" :class="{ active: activeSection === item.section }">
+          <a :href="'#' + item.section" @click.prevent="onNavClick(item.section)" :class="{ active: activeSection === item.section }">
             {{ item.label }}
           </a>
         </li>
@@ -50,21 +50,18 @@ let cachedSections = {}
 let navbarHeight = ref(80)
 
 const handleScroll = () => {
+  if (isClickScrolling) return; // Hentikan kalkulasi jika sedang scroll dari klik
+
   const currentScroll = window.scrollY
   
-  // ===== PERBAIKAN 2: LOGIKA ACTIVE TAB =====
-  // Kondisi khusus: Jika posisi scroll berada di atas section "About",
-  // paksa tab aktif menjadi "Home".
   const aboutSection = cachedSections['about'];
   if (aboutSection && currentScroll < aboutSection.offsetTop - navbarHeight.value) {
       activeSection.value = 'home';
-      // Jalankan logika lain seperti biasa lalu hentikan fungsi
       isScrolled.value = currentScroll > 0;
       lastScroll = currentScroll;
       return; 
   }
 
-  // Logika loop standar untuk section lainnya
   let current = 'home'
   const scrollUpOffset = 300
   for (let i = menuItems.length - 1; i >= 0; i--) {
@@ -86,36 +83,37 @@ const handleScroll = () => {
   activeSection.value = current
   isScrolled.value = currentScroll > 0
 
-  if (!isClickScrolling) {
-    if (currentScroll > lastScroll && currentScroll > 100) {
-      isHidden.value = true
-      isMobileMenuOpen.value = false
-    } else {
-      isHidden.value = false
-    }
+  if (currentScroll > lastScroll && currentScroll > 100) {
+    isHidden.value = true
+    isMobileMenuOpen.value = false
+  } else {
+    isHidden.value = false
   }
+  
   lastScroll = currentScroll
-}
-
-const handleLinkClick = () => {
-  isClickScrolling = true
-  isHidden.value = false
-  isMobileMenuOpen.value = false
-  setTimeout(() => {
-    isClickScrolling = false
-  }, 800)
 }
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
+// ===== PERBAIKAN DI SINI =====
 const onNavClick = (sectionId) => {
+  isClickScrolling = true;
+  isMobileMenuOpen.value = false;
+  
+  // 1. Langsung set tab aktif tanpa menunggu scroll selesai
+  activeSection.value = sectionId;
+
   const targetSection = cachedSections[sectionId]
   if (targetSection) {
     targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
-  handleLinkClick()
+
+  // 2. Beri jeda sebelum logika scroll otomatis aktif lagi
+  setTimeout(() => {
+    isClickScrolling = false
+  }, 1000); // Diberi waktu 1 detik, cukup untuk scroll selesai
 }
 
 onMounted(() => {
@@ -134,7 +132,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* CSS untuk navbar tidak ada perubahan */
+/* Kode CSS Anda sudah benar dan tidak perlu diubah */
 .navbar {
   width: 100%;
   padding: 1rem 3rem;
@@ -195,6 +193,7 @@ onBeforeUnmount(() => {
 @media (max-width: 768px) {
   .navbar { padding: 1rem 1.5rem; }
   .navbar-links { display: none; }
+  .navbar-logo { font-size: 1.3rem; }
   .mobile-menu-toggle {
     display: flex;
     flex-direction: column;
@@ -243,17 +242,8 @@ onBeforeUnmount(() => {
     display: block;
     padding: 0.5rem 1rem;
   }
-  .mobile-menu-links a:hover {
-    color: var(--neon-blue);
-    text-shadow: 0 0 15px var(--neon-blue);
-    transform: scale(1.1);
-  }
-  .mobile-menu-links a.active {
-    color: var(--pikachu-yellow);
-    text-shadow: 0 0 15px var(--pikachu-yellow);
-    transform: scale(1.1);
-  }
-  .navbar-logo { font-size: 1.3rem; }
+  .mobile-menu-links a:hover { color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); transform: scale(1.1); }
+  .mobile-menu-links a.active { color: var(--pikachu-yellow); text-shadow: 0 0 15px var(--pikachu-yellow); transform: scale(1.1); }
 }
 @media (max-width: 480px) {
   .navbar { padding: 0.8rem 1rem; }

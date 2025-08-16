@@ -29,7 +29,7 @@ body {
   position: relative;
 }
 
-/* ===== Background Wajib ===== */
+/* ===== Backgrounds ===== */
 /* Lapisan Grid Kotak-kotak */
 body::before {
   content: '';
@@ -38,7 +38,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
   background-size: 80px 80px;
@@ -46,18 +46,42 @@ body::before {
   z-index: -2;
 }
 
-@keyframes gridPulse {
-  0%, 100% { 
-    opacity: 0.3;
-    transform: translateX(0px);
-  }
-  50% { 
-    opacity: 0.6;
-    transform: translateX(5px);
-  }
+/* Partikel Parallax (dikontrol oleh JS) */
+.scroll-particle-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
 }
 
-/* ===== UTILITIES & STYLING UMUM ===== */
+.particle {
+  position: absolute;
+  transition: transform 0.2s ease-out;
+}
+
+/* Visual dari Partikel (dikontrol oleh CSS) */
+.particle > div {
+  width: 100%;
+  height: 100%;
+  background-color: var(--pikachu-yellow);
+  border-radius: 50%;
+  /* Animasi fade-in sekali & glow berulang */
+  animation:
+    particle-fade-in 1s ease-out forwards,
+    particle-glow 5s ease-in-out infinite;
+}
+
+/* Penundaan animasi glow untuk setiap partikel */
+.p1 > div { animation-delay: 0s, 0.5s; }
+.p2 > div { animation-delay: 0s, 2.0s; }
+.p3 > div { animation-delay: 0s, 3.5s; }
+.p4 > div { animation-delay: 0s, 4.8s; }
+
+
+/* ===== Styling Umum ===== */
 section {
   padding: 6rem 3rem;
   min-height: 100vh;
@@ -72,6 +96,7 @@ section {
   margin-top: 2rem;
 }
 
+/* ===== Kelas Utilitas (Utilities) ===== */
 .loading-text {
   background: linear-gradient(90deg, transparent, var(--pikachu-yellow), transparent);
   background-size: 200% 100%;
@@ -81,63 +106,48 @@ section {
   animation: shimmer 2s infinite;
 }
 
+.g-fade-in-up {
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: fadeInUp 0.6s forwards;
+}
+
+.g-fade-in-left {
+  opacity: 0;
+  animation: fadeInLeft 0.8s forwards;
+}
+
+.g-fade-in-right {
+  opacity: 0;
+  animation: fadeInRight 0.8s forwards;
+}
+
+/* ===== Definisi Animasi (Keyframes) ===== */
+@keyframes gridPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateX(0px);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(5px);
+  }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== Global Responsive Adjustments ===== */
-@media (max-width: 1024px) {
-  section {
-    padding: 4rem 2rem;
-  }
-}
-
-@media (max-width: 768px) {
-  section {
-    padding: 4rem 1.5rem;
-    min-height: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  section {
-    padding: 3rem 1rem;
-  }
-}
-/* ===== EFEK BARU: JAVASCRIPT-DRIVEN PARALLAX ===== */
-/* Definisikan animasi untuk berkedip dan bersinar */
-@keyframes particle-glow {
-  0%, 100% {
-    opacity: 0.4;
-    box-shadow: 0 0 4px var(--pikachu-yellow);
-  }
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 12px var(--pikachu-yellow), 0 0 6px var(--pikachu-light);
-  }
-}
-
-/* Definisikan animasi untuk fade-in saat pertama muncul */
 @keyframes particle-fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
-    opacity: 0.4; /* Opacity awal sebelum mulai berkedip */
-    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-/* Animasi untuk berkedip dan bersinar (TETAP SAMA) */
 @keyframes particle-glow {
   0%, 100% {
     opacity: 0.4;
@@ -149,50 +159,6 @@ section {
   }
 }
 
-/* Animasi fade-in, HANYA MENGATUR OPACITY */
-@keyframes particle-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.scroll-particle-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* .particle sekarang menjadi WRAPPER POSISI */
-.particle {
-  position: absolute;
-  /* Hapus semua style visual dari sini */
-  transition: transform 0.2s ease-out; /* Biarkan transisi untuk pergerakan parallax */
-}
-
-/* Elemen div di DALAM .particle menjadi VISUAL-nya */
-.particle > div {
-  width: 100%;
-  height: 100%;
-  background-color: var(--pikachu-yellow);
-  border-radius: 50%;
-  
-  /* Animasi visual diterapkan di sini, bukan di parent-nya */
-  animation: 
-    particle-fade-in 1s ease-out forwards,
-    particle-glow 5s ease-in-out infinite;
-}
-
-/* Terapkan delay pada elemen visual di dalamnya */
-.p1 > div { animation-delay: 0s, 0.5s; }
-.p2 > div { animation-delay: 0s, 2s; }
-.p3 > div { animation-delay: 0s, 3.5s; }
-.p4 > div { animation-delay: 0s, 4.8s; }
-/* ===== Animation Utility Classes (VERSI DIPERBAIKI) ===== */
-
-/* Keyframes untuk animasi */
 @keyframes fadeInUp {
   to {
     opacity: 1;
@@ -222,19 +188,22 @@ section {
   }
 }
 
-/* Kelas utilitas global yang sudah lengkap dengan kondisi awal */
-.g-fade-in-up {
-  opacity: 0;
-  transform: translateY(-20px); /* Bergerak dari atas */
-  animation: fadeInUp 0.6s forwards;
+/* ===== Penyesuaian Responsif Global ===== */
+@media (max-width: 1024px) {
+  section {
+    padding: 4rem 2rem;
+  }
 }
 
-.g-fade-in-left {
-  opacity: 0;
-  animation: fadeInLeft 0.8s forwards;
+@media (max-width: 768px) {
+  section {
+    padding: 4rem 1.5rem;
+    min-height: auto;
+  }
 }
 
-.g-fade-in-right {
-  opacity: 0;
-  animation: fadeInRight 0.8s forwards;
+@media (max-width: 480px) {
+  section {
+    padding: 3rem 1rem;
+  }
 }
