@@ -4,9 +4,10 @@ export default defineNuxtConfig({
     head: {
       title: 'Portofolio Alvigo',
       link: [
-        // Hapus atau ganti link favicon yang lama jika ada,
-        // lalu tambahkan baris ini:
-        { rel: 'icon', type: 'image/png', href: '/awblogo2.png' } 
+        { rel: 'icon', type: 'image/png', href: '/awblogo2.png' },
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap' }
       ]
     }
   },

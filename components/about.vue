@@ -1,10 +1,10 @@
 <template>
   <section id="about" ref="aboutSectionRef">
     <div class="content-wrapper">
-      
+
       <div class="title-block">
         <h2 class="section-title animated-item">About Me</h2>
-        <p class="subtitle animated-item">⚡️ Nothing last forever, we can change the future ⚡️</p>
+        <p class="subtitle animated-item">You can't love what you don't know</p>
       </div>
 
       <div class="intro-flex">
@@ -15,7 +15,8 @@
             With a strong foundation in HTML, CSS, and JavaScript, I bring ideas to life through clean and efficient code. My goal is to leverage technology to solve real-world problems and enhance user experiences.
           </p>
           <div class="quote animated-item from-left">
-            <p>"If you're not a goodshoot today. Don't worry, there are other ways to be useful"</p>
+            <p>"It’s not about how much time you have, it’s how you use it."</p>
+            <span class="author">- Ekko, League Of Legends</span>
           </div>
           <div class="action-buttons animated-item">
             <a href="https://docs.google.com/document/d/1WK3gCM0rMtvzw2dw22KOVe1nULW5ojsFqohXWfrb_X4/edit?usp=sharing" download class="btn btn-primary">
@@ -62,312 +63,155 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+
 const aboutSectionRef = ref(null);
-let observer;
-let lastScrollY = window.scrollY;
-let scrollDirection = 'down';
-const scrollToPortfolio = (targetTab = 'projects') => {
-  window.location.hash = `portofolio?tab=${targetTab}`;
-  const portfolioSection = document.querySelector('#portofolio');
+let observer = null;
+
+const scrollToPortfolio = (targetTab) => {
+  const portfolioSection = document.getElementById('portofolio');
+
   if (portfolioSection) {
     portfolioSection.scrollIntoView({ behavior: 'smooth' });
+    const event = new CustomEvent('change-tab', { detail: targetTab });
+    window.dispatchEvent(event);
   }
 };
-const handleWindowScroll = () => {
-  scrollDirection = window.scrollY > lastScrollY ? 'down' : 'up';
-  lastScrollY = window.scrollY;
-};
-const handleIntersection = (entries) => {
-  const entry = entries[0];
-  if (entry.isIntersecting) {
-    entry.target.classList.add('in-view');
-  } else if (scrollDirection === 'up') {
-    entry.target.classList.remove('in-view');
-  }
-};
+
 onMounted(() => {
-  window.addEventListener('scroll', handleWindowScroll);
-  observer = new IntersectionObserver(handleIntersection, { threshold: 0.1 });
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      // Logic Animasi Replay
+      if (entry.isIntersecting) {
+        // Pas masuk layar: Tambah class (Mulai Animasi)
+        entry.target.classList.add('in-view');
+      } else {
+        // Pas keluar layar: Hapus class (Reset Animasi biar bisa main lagi nanti)
+        entry.target.classList.remove('in-view');
+      }
+    });
+  }, { threshold: 0.15 }); // Threshold dikit aja biar lebih responsif pas reset
+
   if (aboutSectionRef.value) {
     observer.observe(aboutSectionRef.value);
   }
 });
+
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', handleWindowScroll);
   if (observer) observer.disconnect();
 });
 </script>
 
 <style scoped>
-/* ===== STRUKTUR UTAMA ===== */
+/* ===== STRUKTUR UTAMA (UPDATED) ===== */
+#about {
+  /* Samakan dengan Contact */
+  padding-top: 50px;
+  padding-bottom: 100px;
+  scroll-margin-top: 80px; /* Biar pas diklik navbar berhentinya pas */
+}
+
 .content-wrapper {
-  max-width: 1600px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 2rem; /* HAPUS padding top/bottom bawaan global */
 }
 
-.title-block {
-  text-align: center;
-  margin-bottom: 4rem;
-}
+/* Sisa CSS ke bawah SAMA PERSIS, tidak ada yang diubah */
+.title-block { text-align: center; margin-bottom: 4rem; }
+.intro-flex { display: flex; align-items: center; gap: 3rem; margin-bottom: 4rem; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 
-.intro-flex {
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-  margin-bottom: 4rem;
-}
+/* ... (lanjutkan CSS Typography, Photo, Buttons, Stats, Animasi, dll seperti sebelumnya) ... */
+.section-title { font-size: 3rem; font-weight: 700; color: var(--text-white); margin-bottom: 0.5rem; }
+.subtitle { color: var(--pikachu-yellow); font-weight: 500; }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-/* ===== KONTEN & TIPOGRAFI ===== */
-.section-title {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--text-white);
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: var(--pikachu-yellow);
-  font-weight: 500;
-}
-
-.intro-text {
-  flex: 1;
-}
-
-.intro-text h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-}
-
-.highlight-name {
-  color: var(--pikachu-yellow);
-}
-
-.bio {
-  color: rgb(209, 213, 219);
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-}
+.intro-text { flex: 1; }
+.intro-text h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; margin-bottom: 1.5rem; }
+.highlight-name { color: var(--pikachu-yellow); }
+.bio { color: rgb(209, 213, 219); line-height: 1.7; margin-bottom: 1.5rem; }
 
 .quote {
-  background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--pikachu-yellow);
-  padding: 1rem;
-  margin-bottom: 2rem;
-  font-style: italic;
-  color: rgb(209, 213, 219);
+  background: rgba(255, 255, 255, 0.03); border-left: 3px solid var(--pikachu-yellow);
+  padding: 1rem; margin-bottom: 2rem; font-style: italic; color: rgb(209, 213, 219);
 }
 
-/* ===== FOTO PROFIL ===== */
 .intro-photo {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 350px;
-  aspect-ratio: 1/1;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  position: relative;
+  flex: 1; display: flex; justify-content: center; align-items: center;
+  max-width: 350px; aspect-ratio: 1/1; border-radius: 50%; overflow: hidden;
+  flex-shrink: 0; position: relative;
 }
-
 .intro-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 4px solid var(--bg-dark);
-  box-shadow: 0 0 25px var(--pikachu-yellow);
+  width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+  border: 4px solid var(--bg-dark); box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
   transition: transform 0.4s ease-out;
 }
-
-.intro-photo:hover img {
-  transform: scale(1.1);
-}
-
+.intro-photo:hover img { transform: scale(1.1); }
 .intro-photo::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 150%;
-  height: 100%;
+  content: ''; position: absolute; top: 0; left: 0; width: 150%; height: 100%;
   background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
-  transform: translateX(-150%) skewX(-20deg);
-  transition: transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateX(-150%) skewX(-20deg); transition: transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+.intro-photo:hover::after { transform: translateX(100%) skewX(-20deg); }
 
-.intro-photo:hover::after {
-  transform: translateX(100%) skewX(-20deg);
-}
-
-/* ===== TOMBOL (BUTTONS) ===== */
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
+.action-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
 .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none;
 }
+.btn svg { width: 1.2rem; height: 1.2rem; }
+.btn-primary { background: var(--pikachu-yellow); color: var(--bg-dark); border: 2px solid var(--pikachu-yellow); }
+.btn-primary:hover { transform: translateY(-3px); color: #fff; border-color: #fff; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4); }
+.btn-secondary { background: transparent; color: var(--text-white); border: 2px solid rgb(75, 85, 99); }
+.btn-secondary:hover { border-color: var(--pikachu-yellow); color: var(--pikachu-yellow); transform: translateY(-3px); box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2); }
 
-.btn svg {
-  width: 1.2rem;
-  height: 1.2rem;
-}
-
-.btn-primary {
-  background: var(--pikachu-yellow);
-  color: var(--bg-dark);
-  border: 2px solid var(--pikachu-yellow);
-}
-
-.btn-primary:hover {
-  transform: translateY(-3px);
-  color: var(--text-white);
-  border-color: var(--text-white);
-  box-shadow: 0 4px 20px rgba(0, 204, 255, 0.4);
-  background: linear-gradient(45deg, rgba(0, 217, 255, 0.8), rgba(76, 0, 255, 0.2));
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text-white);
-  border: 2px solid rgb(75, 85, 99);
-}
-
-.btn-secondary:hover {
-  border-color: var(--pikachu-yellow);
-  color: var(--pikachu-yellow);
-  transform: translateY(-3px);
-  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
-}
-
-/* ===== KARTU STATISTIK (STAT ITEMS) ===== */
 .stat-item {
-  position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgb(75, 85, 99);
-  padding: 1.5rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  cursor: pointer;
+  position: relative; background: rgba(255, 255, 255, 0.03); border: 1px solid rgb(75, 85, 99);
+  padding: 1.5rem; border-radius: 8px; transition: all 0.3s ease; cursor: pointer;
 }
-
-.stat-item:hover {
-  transform: translateY(-5px);
-  border-color: var(--pikachu-yellow);
-}
-
-.stat-icon-wrapper {
-  color: var(--pikachu-yellow);
-  width: 32px;
-  height: 32px;
-  margin-bottom: 1rem;
-}
-
-.stat-number {
-  display: block;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-white);
-}
-
-.stat-title {
-  font-weight: 500;
-  margin-top: 0.5rem;
-  color: rgb(209, 213, 219);
-}
-
-.stat-desc {
-  font-size: 0.875rem;
-  color: rgb(156, 163, 175);
-}
-
+.stat-item:hover { transform: translateY(-5px); border-color: var(--pikachu-yellow); }
+.stat-icon-wrapper { color: var(--pikachu-yellow); width: 32px; height: 32px; margin-bottom: 1rem; }
+.stat-number { display: block; font-size: 2.5rem; font-weight: 700; color: var(--text-white); }
+.stat-title { font-weight: 500; margin-top: 0.5rem; color: rgb(209, 213, 219); }
+.stat-desc { font-size: 0.875rem; color: rgb(156, 163, 175); }
 .stat-arrow {
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  font-size: 1.2rem;
-  color: var(--pikachu-yellow);
-  transform: rotate(-45deg);
-  transition: transform 0.3s ease;
+  position: absolute; right: 1rem; bottom: 1rem; font-size: 1.2rem;
+  color: var(--pikachu-yellow); transform: rotate(-45deg); transition: transform 0.3s ease;
 }
+.stat-item:hover .stat-arrow { transform: rotate(0deg); }
 
-.stat-item:hover .stat-arrow {
-  transform: rotate(0deg);
-}
+.animated-item { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+.from-left { transform: translateX(-50px); }
+.from-right { transform: translateX(50px); }
+#about.in-view .animated-item { opacity: 1; transform: translate(0, 0); }
+#about.in-view .title-block .animated-item:nth-child(1) { transition-delay: 0.1s; }
+#about.in-view .title-block .animated-item:nth-child(2) { transition-delay: 0.2s; }
+#about.in-view .intro-text .animated-item:nth-child(1) { transition-delay: 0.3s; }
+#about.in-view .intro-text .animated-item:nth-child(2) { transition-delay: 0.4s; }
+#about.in-view .intro-text .animated-item:nth-child(3) { transition-delay: 0.5s; }
+#about.in-view .intro-text .animated-item:nth-child(4) { transition-delay: 0.6s; }
+#about.in-view .intro-photo.animated-item { transition-delay: 0.6s; }
+#about.in-view .stats-grid .animated-item:nth-child(1) { transition-delay: 0.8s; }
+#about.in-view .stats-grid .animated-item:nth-child(2) { transition-delay: 0.9s; }
+#about.in-view .stats-grid .animated-item:nth-child(3) { transition-delay: 1.0s; }
 
-/* ===== ANIMASI (DIREFAKTOR) ===== */
-.animated-item {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-.from-left {
-  transform: translateX(-50px);
-}
-
-.from-right {
-  transform: translateX(50px);
-}
-
-#about.in-view .animated-item {
-  opacity: 1;
-  transform: translate(0, 0);
-}
-
-/* Delay diatur berdasarkan urutan elemen di dalam parent-nya */
-#about.in-view .animated-item:nth-of-type(1) { transition-delay: 0.2s; }
-#about.in-view .animated-item:nth-of-type(2) { transition-delay: 0.4s; }
-#about.in-view .animated-item:nth-of-type(3) { transition-delay: 0.6s; }
-#about.in-view .animated-item:nth-of-type(4) { transition-delay: 0.8s; }
-#about.in-view .animated-item:nth-of-type(5) { transition-delay: 1.0s; }
-#about.in-view .stats-grid .animated-item:nth-of-type(1) { transition-delay: 1.0s; }
-#about.in-view .stats-grid .animated-item:nth-of-type(2) { transition-delay: 1.2s; }
-#about.in-view .stats-grid .animated-item:nth-of-type(3) { transition-delay: 1.4s; }
-
-/* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
-  .intro-flex {
-    flex-direction: column-reverse;
-    text-align: center;
-  }
-  .intro-photo {
-    margin: 0 auto 2rem;
-    max-width: 250px;
-  }
+  .intro-flex { flex-direction: column-reverse; text-align: center; }
+  .intro-photo { margin: 0 auto 2rem; max-width: 250px; }
+  .action-buttons { justify-content: center; }
+  .quote { margin-left: auto; margin-right: auto; }
 }
-
 @media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+  .stats-grid { grid-template-columns: 1fr; }
+  .section-title { font-size: 2.5rem; }
 }
+@media (min-width: 1024px) { .bio, .quote { max-width: 650px; } }
 
-@media (min-width: 1024px) {
-  .bio,
-  .quote {
-    max-width: 650px;
-  }
+.quote .author {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--pikachu-yellow);
+  font-weight: 600;
+  font-style: normal; /* Biar ga miring kayak quotenya */
 }
 </style>

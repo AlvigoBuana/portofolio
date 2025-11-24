@@ -1,10 +1,14 @@
-/* ===== Global Reset & Font ===== */
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap');
-
-* {
+/* RESET TOTAL */
+*, *::before, *::after {
+  box-sizing: border-box; /* Wajib ada biar padding gak nambah lebar elemen */
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  outline: none;
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* Mencegah scroll ke samping */
 }
 
 :root {
@@ -27,6 +31,9 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   position: relative;
+  /* Membuat font lebih tajam di browser modern */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ===== Backgrounds ===== */
@@ -44,9 +51,12 @@ body::before {
   background-size: 80px 80px;
   animation: gridPulse 8s ease-in-out infinite;
   z-index: -2;
+  /* Optimasi performa render */
+  will-change: transform, opacity;
+  pointer-events: none;
 }
 
-/* Partikel Parallax (dikontrol oleh JS) */
+/* Partikel Parallax */
 .scroll-particle-container {
   position: fixed;
   top: 0;
@@ -60,21 +70,21 @@ body::before {
 .particle {
   position: absolute;
   transition: transform 0.2s ease-out;
+  will-change: transform;
 }
 
-/* Visual dari Partikel (dikontrol oleh CSS) */
+/* Visual dari Partikel */
 .particle > div {
   width: 100%;
   height: 100%;
   background-color: var(--pikachu-yellow);
   border-radius: 50%;
-  /* Animasi fade-in sekali & glow berulang */
   animation:
     particle-fade-in 1s ease-out forwards,
     particle-glow 5s ease-in-out infinite;
 }
 
-/* Penundaan animasi glow untuk setiap partikel */
+/* Penundaan animasi glow */
 .p1 > div { animation-delay: 0s, 0.5s; }
 .p2 > div { animation-delay: 0s, 2.0s; }
 .p3 > div { animation-delay: 0s, 3.5s; }
@@ -82,6 +92,9 @@ body::before {
 
 
 /* ===== Styling Umum ===== */
+/* Saran: Nanti pelan-pelan pindahkan padding ini ke class utility Tailwind
+  langsung di komponen (misal: class="py-24 px-12 min-h-screen")
+*/
 section {
   padding: 6rem 3rem;
   min-height: 100vh;
@@ -96,13 +109,14 @@ section {
   margin-top: 2rem;
 }
 
-/* ===== Kelas Utilitas (Utilities) ===== */
+/* ===== Kelas Utilitas Custom ===== */
 .loading-text {
   background: linear-gradient(90deg, transparent, var(--pikachu-yellow), transparent);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent; /* Safari support */
+  color: transparent; /* Fallback */
   animation: shimmer 2s infinite;
 }
 
@@ -110,16 +124,19 @@ section {
   opacity: 0;
   transform: translateY(-20px);
   animation: fadeInUp 0.6s forwards;
+  will-change: transform, opacity;
 }
 
 .g-fade-in-left {
   opacity: 0;
   animation: fadeInLeft 0.8s forwards;
+  will-change: transform, opacity;
 }
 
 .g-fade-in-right {
   opacity: 0;
   animation: fadeInRight 0.8s forwards;
+  will-change: transform, opacity;
 }
 
 /* ===== Definisi Animasi (Keyframes) ===== */
@@ -140,12 +157,8 @@ section {
 }
 
 @keyframes particle-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes particle-glow {
@@ -198,7 +211,7 @@ section {
 @media (max-width: 768px) {
   section {
     padding: 4rem 1.5rem;
-    min-height: auto;
+    min-height: auto; /* Mencegah section terlalu tinggi di HP */
   }
 }
 
@@ -206,4 +219,29 @@ section {
   section {
     padding: 3rem 1rem;
   }
+}
+
+/* Custom Scrollbar (Webkit Only - Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a; /* Warna background gelap */
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pikachu-yellow); /* Warna kuning abang */
+  border-radius: 5px;
+  border: 2px solid #0a0a0a; /* Kasih border biar ada jarak */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e6c200; /* Warna pas di-hover agak gelap dikit */
+}
+
+/* Warna Selection Teks (Pas teks di-blok) */
+::selection {
+  background: var(--pikachu-yellow);
+  color: #000;
 }

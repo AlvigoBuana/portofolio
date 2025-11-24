@@ -2,10 +2,10 @@
   <section class="welcome-screen" :class="{ 'fade-out': fadeOut }">
     <div class="welcome-content">
       <div class="icon-row">
-        <div 
-          v-for="(icon, index) in icons" 
-          :key="index" 
-          class="icon-wrapper g-fade-in-up" 
+        <div
+          v-for="(icon, index) in icons"
+          :key="index"
+          class="icon-wrapper g-fade-in-up"
           :style="{ animationDelay: `${index * 0.2}s` }"
         >
           <img :src="icon" alt="icon" class="icon" />
@@ -37,7 +37,7 @@ const icons = [
   '/instagram.svg'
 ]
 const typedText = ref('')
-const fullText = 'www.alvigowb.com'
+const fullText = 'portofolio-alvigowb.vercel.app'
 let charIndex = 0
 const fadeOut = ref(false)
 
@@ -59,7 +59,7 @@ onMounted(() => {
     setTimeout(() => {
       // 3. Kirim sinyal 'animationFinished' ke parent (App.vue)
       emit('animationFinished')
-    }, 1000) 
+    }, 1000)
   }, 3000) // Mulai proses fade-out setelah 3 detik
 })
 </script>
