@@ -138,9 +138,9 @@ const sendEmail = () => {
   statusMessage.value = '';
 
   // Pastikan ID ini sesuai dengan akun EmailJS Abang
-  const SERVICE_ID = 'service_z8h4k2a';
-  const TEMPLATE_ID = 'template_b9x2m1q';
-  const PUBLIC_KEY = 'A8n2_kL92s1s';
+  const SERVICE_ID = 'service_irx1gcj';
+  const TEMPLATE_ID = 'template_msf5ce6';
+  const PUBLIC_KEY = 'wkUlxQeRIq8k8ht0j';
 
   const templateParams = {
     name: form.value.name,
