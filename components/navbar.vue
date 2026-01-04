@@ -147,7 +147,7 @@ onBeforeUnmount(() => { window.removeEventListener('scroll', handleScroll) })
   padding: 1rem 3rem;
   display: flex; justify-content: space-between; align-items: center;
   background: rgba(14, 14, 14, 0.4);
-  backdrop-filter: blur(10px); /* Ini biang keroknya tadi */
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 1000;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;

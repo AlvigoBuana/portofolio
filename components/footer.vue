@@ -27,7 +27,6 @@
       <p>
         &copy; {{ currentYear }} <span class="highlight">Alvigo Wahyu Buana</span>. All Rights Reserved.
       </p>
-      <p class="credits">Built with Vue.js & Nuxt</p>
     </div>
   </footer>
 </template>

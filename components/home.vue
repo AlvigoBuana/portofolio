@@ -75,7 +75,7 @@ const textIndex = ref(0)
 const typingInterval = ref(null)
 
 const texts = ['Alvigo Wahyu Buana', 'Tech & Game Enthusiast']
-const techStack = ['C++', 'Javascript', 'Python', 'Tailwind']
+const techStack = ['React', 'Javascript', 'Python', 'TailwindCSS']
 
 const socialMedia = [
   { name: 'github', href: 'https://github.com/AlvigoBuana', image: '/github.svg' },

@@ -11,12 +11,12 @@
         <div class="intro-text">
           <h1 class="animated-item from-left">Hello, I'm<br><span class="highlight-name">Alvigo Wahyu Buana</span></h1>
           <p class="bio animated-item from-left">
-            A passionate web developer with a knack for creating innovative solutions. I specialize in crafting responsive and user-friendly websites that not only look great but also perform seamlessly across all devices.
-            With a strong foundation in HTML, CSS, and JavaScript, I bring ideas to life through clean and efficient code. My goal is to leverage technology to solve real-world problems and enhance user experiences.
+            A Beginner Web Developer who's still Learning.
+            I Like to create modern, responsive, and mobile friendly website design. Ready to turn your problems into digital website solutions. Let's collaborate to bring your ideas to life!
           </p>
           <div class="quote animated-item from-left">
-            <p>"It’s not about how much time you have, it’s how you use it."</p>
-            <span class="author">- Ekko, League Of Legends</span>
+            <p>"Don't Be Sorry, Be Better"</p>
+            <span class="author">- Atreus, Anak e Kratos</span>
           </div>
           <div class="action-buttons animated-item">
             <a href="https://docs.google.com/document/d/1WK3gCM0rMtvzw2dw22KOVe1nULW5ojsFqohXWfrb_X4/edit?usp=sharing" download class="btn btn-primary">
@@ -30,7 +30,7 @@
           </div>
         </div>
         <div class="intro-photo animated-item from-right">
-          <img src="/profile.png" alt="Alvigo Wahyu Buana">
+          <img src="/public/profil2.png" alt="Alvigo Wahyu Buana">
         </div>
       </div>
 
