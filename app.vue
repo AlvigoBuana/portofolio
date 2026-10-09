@@ -1,8 +1,18 @@
 <template>
   <Transition name="fade" mode="out-in">
-    <WelcomeScreen v-if="showWelcome" @animationFinished="handleWelcomeFinish" />
+    <WelcomeScreen
+      v-if="pagePhase === 'welcome'"
+      @animationFinished="handleWelcomeFinish"
+    />
 
-    <main v-else class="relative w-full overflow-hidden">
+    <ScrollVideoIntro
+      v-else-if="pagePhase === 'intro'"
+      @finished="handleIntroFinish"
+    />
+
+    <main v-else class="relative w-full overflow-x-clip">
+      <div class="scroll-progress" aria-hidden="true"></div>
+
       <div class="scroll-particle-container">
         <div
           v-for="(particle, index) in particles"
@@ -18,7 +28,7 @@
       <Home />
       <About />
 
-      <LazyPortfolio />
+      <LazyJourney />
       <LazyContact />
       <LazyFooter />
 
@@ -47,20 +57,30 @@ import '~/assets/styles.css'
 
 // === IMPORT MANUAL (Komponen Layar Awal) ===
 import WelcomeScreen from '~/components/welcome.vue'
+import ScrollVideoIntro from '~/components/scroll-video-intro.vue'
 import Navbar from '~/components/navbar.vue'
 import Home from '~/components/home.vue'
 import About from '~/components/about.vue'
 
 // === LAZY LOAD (Optimasi Loading) ===
 // Ganti nama file di dalam import() sesuai nama file asli abang
-const LazyPortfolio = defineAsyncComponent(() => import('~/components/portofolio.vue'))
+const LazyJourney = defineAsyncComponent(() => import('~/components/journey.vue'))
 const LazyContact = defineAsyncComponent(() => import('~/components/contact.vue'))
 const LazyFooter = defineAsyncComponent(() => import('~/components/footer.vue'))
 
 // --- LOGIC WELCOME ---
-const showWelcome = ref(true)
+const pagePhase = ref('welcome')
 const handleWelcomeFinish = () => {
-  showWelcome.value = false
+  pagePhase.value = 'intro'
+}
+
+const handleIntroFinish = () => {
+  document.documentElement.style.scrollBehavior = 'auto'
+  window.scrollTo(0, 0)
+  pagePhase.value = 'main'
+  requestAnimationFrame(() => {
+    document.documentElement.style.removeProperty('scroll-behavior')
+  })
 }
 
 // --- LOGIC PARTIKEL (OPTIMIZED) ---
@@ -113,8 +133,8 @@ const animateParticles = () => {
 }
 
 // Watcher: Jalanin partikel HANYA setelah Welcome Screen kelar
-watch(showWelcome, (isShowing) => {
-  if (!isShowing) {
+watch(() => pagePhase.value === 'main', (isMainPage) => {
+  if (isMainPage) {
     nextTick(() => {
       // --- LOGIC JUMLAH PARTIKEL ---
       const width = window.innerWidth;

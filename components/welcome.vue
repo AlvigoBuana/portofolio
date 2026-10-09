@@ -27,10 +27,8 @@
 <script setup>
 import { ref, onMounted, defineEmits } from 'vue'
 
-// 1. Definisikan sinyal yang bisa dikirim komponen ini
 const emit = defineEmits(['animationFinished'])
 
-// Path ikon dan logika typing tidak berubah
 const icons = [
   '/github.svg',
   '/linkedin.svg',
@@ -51,23 +49,26 @@ onMounted(() => {
     }
   }, 100)
 
-  // 2. Logika waktu yang disinkronkan
   setTimeout(() => {
-    fadeOut.value = true // Ini memicu animasi fade-out (durasi 1 detik)
+    fadeOut.value = true
 
-    // Tunggu animasi selesai (1000ms = 1 detik)
     setTimeout(() => {
-      // 3. Kirim sinyal 'animationFinished' ke parent (App.vue)
       emit('animationFinished')
     }, 1000)
-  }, 3000) // Mulai proses fade-out setelah 3 detik
+  }, 3000)
 })
 </script>
 
 <style scoped>
 .welcome-screen {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  /* Memaksa elemen mengambil 100% lebar & tinggi dari layar asli device */
+  width: 100vw;
+  height: 100vh;
+  /* 100dvh sangat ampuh untuk mobile browser agar tidak terpotong address bar Chrome/Safari */
+  height: 100dvh;
   background: #0a0a0a;
   display: flex;
   justify-content: center;
@@ -75,6 +76,8 @@ onMounted(() => {
   z-index: 9999;
   transition: opacity 1s ease, visibility 1s ease;
   visibility: visible;
+  /* Mencegah scrollbar muncul tiba-tiba saat animasi */
+  overflow: hidden;
 }
 
 .welcome-screen.fade-out {
@@ -85,13 +88,17 @@ onMounted(() => {
 .welcome-content {
   text-align: center;
   color: #fff;
+  padding: 0 1.5rem;
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
 }
 
 .icon-row {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: clamp(1rem, 4vw, 1.5rem);
+  margin-bottom: clamp(1rem, 4vw, 1.5rem);
 }
 
 .icon-wrapper {
@@ -99,31 +106,41 @@ onMounted(() => {
 }
 
 .icon {
-  width: 40px;
-  height: 40px;
+  width: clamp(30px, 8vw, 45px);
+  height: clamp(30px, 8vw, 45px);
   filter: drop-shadow(0 0 6px var(--pikachu-yellow));
 }
 
 .welcome-title {
-  font-size: 2.5rem;
+  /* Ukuran diturunkan sedikit untuk mobile agar lebih proporsional */
+  font-size: clamp(1.5rem, 5vw + 0.5rem, 3rem);
   font-weight: bold;
   margin-bottom: 1rem;
+  line-height: 1.4;
+  /* Diubah menjadi flex agar saat turun baris di tablet/HP tetap simetris di tengah */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem; /* Menjaga jarak antar kata "Welcome" dan "to My Portfolio" */
 }
 
 .welcome-title span {
   display: inline-block;
-  /* opacity: 0; sudah dipindahkan ke kelas global */
 }
 
 .welcome-title span:nth-child(2) {
-  margin-left: 10px;
+  /* Margin kiri manual dihapus karena sudah di-handle oleh gap di .welcome-title */
+  margin-left: 0;
 }
 
 .welcome-link {
-  font-size: 1.2rem;
+  font-size: clamp(0.85rem, 3vw + 0.5rem, 1.2rem);
   color: var(--pikachu-yellow);
   margin-top: 0.5rem;
-  /* Dihapus: animasi fade-in agar hanya ada efek ketik */
+  padding: 0 0.5rem;
+  /* Menggunakan overflow-wrap agar URL panjang patah ke bawah tanpa merusak layout luar */
+  overflow-wrap: break-word;
 }
 
 .cursor {
@@ -132,6 +149,7 @@ onMounted(() => {
   background: var(--pikachu-yellow);
   animation: blink 1s infinite;
   animation-delay: 2.2s;
+  vertical-align: middle;
 }
 
 @keyframes blink {

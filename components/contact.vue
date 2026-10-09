@@ -3,6 +3,7 @@
     <div class="content-wrapper">
 
       <div class="title-block">
+        <p class="section-kicker">Have a project in mind?</p>
         <h2 class="section-title">Contact Me</h2>
         <p class="subtitle">Let's connect, collaborate, or just say hello!</p>
       </div>
@@ -49,36 +50,6 @@
           </form>
         </div>
 
-        <div class="card-glass guestbook-card">
-          <div class="column-header">
-            <div class="icon-wrapper">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
-            </div>
-            <h3 class="column-title">Guestbook</h3>
-          </div>
-          <p class="guestbook-desc">Leave a comment using your GitHub account!</p>
-
-          <div class="giscus-wrapper">
-            <ClientOnly>
-              <Giscus
-                id="comments"
-                repo="AlvigoBuana/portofolio"
-                repoId="R_kgDOPcId-A"
-                category="General"
-                categoryId="DIC_kwDOPcId-M4Cy4Lo"
-                mapping="pathname"
-                strict="0"
-                reactionsEnabled="1"
-                emitMetadata="0"
-                inputPosition="top"
-                theme="dark_dimmed"
-                lang="en"
-                loading="lazy"
-              />
-            </ClientOnly>
-          </div>
-        </div>
-
       </div>
 
       <div class="bottom-grid">
@@ -107,7 +78,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import emailjs from '@emailjs/browser';
-import Giscus from '@giscus/vue';
 
 const contactSectionRef = ref(null);
 let observer = null;
@@ -182,18 +152,42 @@ onBeforeUnmount(() => { if (observer) observer.disconnect(); });
 
 <style scoped>
 #contact {
-  padding-top: 50px;
-  padding-bottom: 100px;
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  height: auto;
+  padding-block: clamp(5rem, 9vh, 7rem) clamp(3rem, 8vh, 6rem);
+  padding-inline: clamp(1rem, 5vw, 3rem);
   scroll-margin-top: 80px;
+  background:
+    radial-gradient(ellipse at 14% 12%, rgba(92, 117, 129, 0.18), transparent 32rem),
+    radial-gradient(ellipse at 88% 82%, rgba(90, 71, 43, 0.13), transparent 30rem),
+    linear-gradient(145deg, #111820, #0c1218 68%, #10171e);
 }
 .content-wrapper {
+  position: relative;
   max-width: 1400px; /* Lebar wrapper utama */
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0;
 }
 
-.title-block { text-align: center; margin-bottom: 4rem; }
-.section-title { font-size: 3rem; font-weight: 700; color: var(--text-white); margin-bottom: 0.5rem; }
+.title-block { text-align: center; margin-bottom: clamp(2rem, 6vw, 4rem); }
+.section-kicker {
+  color: var(--pikachu-yellow);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+.section-title {
+  color: var(--text-white);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.25rem, 8vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  margin-bottom: 0.5rem;
+}
 .subtitle { color: rgb(209, 213, 219); }
 
 /* ==== MAIN CONTAINER (FULL WIDTH) ==== */
@@ -207,10 +201,10 @@ onBeforeUnmount(() => { if (observer) observer.disconnect(); });
 
 /* Card Style (Glassmorphism) */
 .card-glass {
-  background: rgba(30, 30, 30, 0.5);
+  background: rgba(20, 28, 36, 0.72);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(215, 181, 109, 0.16);
   border-radius: 16px;
   padding: 2.5rem;
   width: 100%; /* Card melebar penuh */
@@ -246,7 +240,7 @@ onBeforeUnmount(() => { if (observer) observer.disconnect(); });
 }
 .form-group input, .form-group textarea {
   width: 100%; padding: 0.85rem 1rem; border-radius: 8px;
-  background: #0f0f0f; border: 1px solid #374151;
+  background: rgba(9, 14, 19, 0.78); border: 1px solid rgba(148, 163, 184, 0.28);
   color: var(--text-white); font-family: 'Rajdhani', sans-serif; font-size: 1rem;
   transition: all 0.3s ease;
 }
@@ -291,10 +285,6 @@ onBeforeUnmount(() => { if (observer) observer.disconnect(); });
 .status-msg.success { color: #4ade80; }
 .status-msg.error { color: #f87171; }
 
-/* ==== GUESTBOOK ==== */
-.guestbook-desc { color: #9ca3af; margin-bottom: 1.5rem; font-size: 0.95rem; }
-.giscus-wrapper { background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 12px; }
-
 /* ==== SOCIALS ==== */
 .bottom-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
@@ -321,11 +311,48 @@ onBeforeUnmount(() => { if (observer) observer.disconnect(); });
 #contact.in-view .title-block { opacity: 1; transform: translateY(0); }
 #contact.in-view .main-container { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
 #contact.in-view .bottom-grid { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+#contact.in-view .card-glass:nth-child(2) { transition-delay: 0.35s; }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .form-row { grid-template-columns: 1fr; gap: 1.5rem; }
-  .bottom-grid { grid-template-columns: 1fr; gap: 3rem; }
-  .card-glass { padding: 1.5rem; }
+  #contact {
+    padding-block: clamp(5.5rem, 12vh, 6rem) clamp(3rem, 8vh, 4rem);
+  }
+
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .bottom-grid { grid-template-columns: 1fr; gap: 2.5rem; margin-top: 3rem; padding-top: 2rem; }
+  .card-glass { padding: clamp(0.9rem, 4vw, 1.5rem); }
+  .column-title { font-size: clamp(1.2rem, 5vw, 1.5rem); }
+  .footer-col-title { font-size: clamp(1rem, 4.5vw, 1.2rem); }
+  .icon-wrapper { width: 2.5rem; height: 2.5rem; flex: 0 0 2.5rem; }
+  .btn-submit { min-height: 2.75rem; padding-inline: clamp(1rem, 5vw, 2rem); }
+}
+
+@media (max-width: 600px) {
+  .form-group textarea {
+    min-height: 9rem;
+    resize: vertical;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .section-kicker { font-size: 0.68rem; letter-spacing: 0.14em; }
+  .subtitle { font-size: 0.9rem; }
+  .form-group label { font-size: 0.78rem; }
+  .bottom-grid { gap: 2rem; }
+  .social-links { gap: 0.65rem; }
+  .social-link { width: 2.65rem; height: 2.65rem; }
+  .social-icon { width: 1.25rem; height: 1.25rem; }
+
+  .btn-submit {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 1rem;
+  }
 }
 </style>

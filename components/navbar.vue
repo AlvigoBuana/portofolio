@@ -62,7 +62,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 const menuItems = [
   { section: 'home', label: 'Home' },
   { section: 'about', label: 'About' },
-  { section: 'portofolio', label: 'Portfolio' },
+  { section: 'journey', label: 'Journey' },
   { section: 'contact', label: 'Contact' }
 ]
 
@@ -73,8 +73,9 @@ const isMobileMenuOpen = ref(false)
 const navbarRef = ref(null)
 
 let lastScrollY = 0
-let isClickScrolling = false
 let navbarHeight = 80
+let navigationTimeoutId = 0
+let isProgrammaticNavigation = false
 
 const throttle = (fn, delay) => {
   let lastCall = 0;
@@ -87,11 +88,11 @@ const throttle = (fn, delay) => {
 }
 
 const handleScroll = throttle(() => {
-  if (isClickScrolling) return
-
   const currentScroll = window.scrollY
 
-  if (currentScroll > lastScrollY && currentScroll > 100) {
+  if (isProgrammaticNavigation) {
+    isHidden.value = false
+  } else if (currentScroll > lastScrollY && currentScroll > 100) {
     isHidden.value = true
     isMobileMenuOpen.value = false
   } else {
@@ -118,17 +119,33 @@ const toggleMobileMenu = () => {
 }
 
 const onNavClick = (sectionId) => {
-  isClickScrolling = true
   isMobileMenuOpen.value = false
   activeSection.value = sectionId
 
-  const element = document.getElementById(sectionId)
-  if (element) {
-    const topPos = element.getBoundingClientRect().top + window.scrollY - 20
-    window.scrollTo({ top: topPos, behavior: 'smooth' })
-  }
+  const section = document.getElementById(sectionId)
+  if (!section) return
 
-  setTimeout(() => { isClickScrolling = false }, 1000)
+  const scrollTarget = section.closest('.home-scroll-track, .about-track') ?? section
+  const topPosition = Math.max(
+    0,
+    scrollTarget.getBoundingClientRect().top + window.scrollY,
+  )
+
+  window.dispatchEvent(new Event('portfolio:navigate'))
+  window.clearTimeout(navigationTimeoutId)
+  isProgrammaticNavigation = true
+  navigationTimeoutId = window.setTimeout(() => {
+    isProgrammaticNavigation = false
+  }, 1500)
+
+  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'instant'
+    : 'smooth'
+  window.scrollTo({ top: topPosition, behavior })
+
+  isHidden.value = false
+  isScrolled.value = topPosition > 50
+  lastScrollY = topPosition
 }
 
 onMounted(() => {
@@ -136,7 +153,10 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll)
 })
 
-onBeforeUnmount(() => { window.removeEventListener('scroll', handleScroll) })
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll)
+  window.clearTimeout(navigationTimeoutId)
+})
 </script>
 
 <style scoped>
@@ -144,7 +164,7 @@ onBeforeUnmount(() => { window.removeEventListener('scroll', handleScroll) })
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
-  padding: 1rem 3rem;
+  padding: 1rem clamp(1rem, 4vw, 3rem);
   display: flex; justify-content: space-between; align-items: center;
   background: rgba(14, 14, 14, 0.4);
   backdrop-filter: blur(10px);
@@ -159,12 +179,12 @@ onBeforeUnmount(() => { window.removeEventListener('scroll', handleScroll) })
 }
 
 .navbar-logo {
-  font-size: 1.5rem; font-weight: bold; cursor: pointer;
+  font-size: clamp(1.15rem, 2vw, 1.5rem); font-weight: bold; cursor: pointer;
   transition: transform 0.2s ease; color: var(--text-white);
 }
 .navbar-logo:hover { transform: scale(1.05); }
 
-.navbar-links { list-style: none; display: flex; gap: 2.5rem; }
+.navbar-links { list-style: none; display: flex; gap: clamp(1.25rem, 3vw, 2.5rem); }
 .navbar-links a {
   text-decoration: none; font-size: 1rem; color: #f5f5f5;
   transition: all 0.3s ease; position: relative;
@@ -179,12 +199,12 @@ onBeforeUnmount(() => { window.removeEventListener('scroll', handleScroll) })
 
 /* MEDIA QUERY */
 @media (max-width: 768px) {
-  .navbar { padding: 1rem 1.5rem; }
+  .navbar { padding: 0.75rem clamp(1rem, 4vw, 1.5rem); }
   .navbar-links { display: none; }
-  .navbar-logo { font-size: 1.3rem; }
 
   .mobile-menu-toggle {
-    display: flex; flex-direction: column; cursor: pointer; z-index: 1002;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    width: 44px; height: 44px; cursor: pointer; z-index: 1002;
   }
   .mobile-menu-toggle span {
     width: 25px; height: 3px; background: var(--pikachu-yellow);
@@ -197,13 +217,13 @@ onBeforeUnmount(() => { window.removeEventListener('scroll', handleScroll) })
   /* BACKDROP (Sekarang di luar header) */
   .mobile-backdrop {
     display: block;
-    position: fixed; inset: 0; /* Full Screen Aman */
+    position: fixed; inset: 0;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-    z-index: 2000; /* Di atas Navbar (1000) */
+    z-index: 2000;
   }
   .mobile-backdrop.active { opacity: 1; pointer-events: all; }
 
@@ -211,27 +231,31 @@ onBeforeUnmount(() => { window.removeEventListener('scroll', handleScroll) })
   .mobile-sidebar {
     display: flex; flex-direction: column; justify-content: center;
     position: fixed;
-    top: 0; right: 0; bottom: 0; /* Full Height Aman */
-    width: 75%; max-width: 300px;
-    background: rgba(18, 18, 18, 0.253); /* Opacity tinggi biar ga transparan bgt */
+    top: 0; right: 0; bottom: 0;
+    width: min(82vw, 300px);
+    background: rgba(18, 18, 18, 0.92);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2001; /* Paling atas */
+    z-index: 2001;
     box-shadow: -5px 0 20px rgba(0,0,0,0.5);
   }
   .mobile-sidebar.active { transform: translateX(0); }
 
   .mobile-menu-links { list-style: none; text-align: center; padding: 0; margin: 0; }
   .mobile-menu-links li {
-    margin: 1.5rem 0; opacity: 0; transform: translateX(20px); transition: all 0.4s ease;
+    margin: clamp(0.75rem, 4vh, 1.5rem) 0; opacity: 0; transform: translateX(20px); transition: all 0.4s ease;
   }
   .mobile-sidebar.active .mobile-menu-links li { opacity: 1; transform: translateX(0); }
 
   .mobile-menu-links a {
-    font-size: 1.5rem; font-weight: 700; text-decoration: none;
-    color: var(--text-white); display: block; padding: 0.5rem 1rem;
+    font-size: clamp(1.25rem, 6vw, 1.5rem); font-weight: 700; text-decoration: none;
+    color: var(--text-white); display: block; padding: 0.75rem 1rem;
   }
   .mobile-menu-links a.active { color: var(--pikachu-yellow); }
+}
+
+@media (max-width: 380px) {
+  .navbar-logo { font-size: 1.1rem; }
 }
 </style>

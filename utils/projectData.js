@@ -13,7 +13,7 @@ export const projectsData = [
   },
   {
     id: 2,
-    title: "Personal Portfolio",
+    title: "Portfolio Website(Landing Page)",
     // Highlight: Tujuan (Personal Branding)
     description: "Platform personal branding modern untuk menampilkan showcase skill dan koleksi project secara profesional kepada rekruter.",
     imageUrl: "/projects/portfolio.png",
@@ -34,14 +34,13 @@ export const projectsData = [
   },
   {
     id: 4,
-    title: "Web Store Marketplace",
+    title: "[DEMO] Beautetox Web Marketplace",
     // Highlight: Skala (Full-stack)
     description: "Sistem marketplace e-commerce full-stack yang kompleks dan terintegrasi (Coming Soon).",
     imageUrl: "/projects/webstore.png",
-    liveUrl: "",
+    liveUrl: "http://31.187.76.201:8080/",
     repoUrl: "",
     tech: ["React TS", "Laravel"],
-    isComingSoon: true
   },
   {
     id: 5,
@@ -53,4 +52,24 @@ export const projectsData = [
     repoUrl: "",
     tech: ["React", "Vite"]
   },
+  {
+    id: 6,
+    title: "Suitmedia Ideas Page",
+    description:
+      "Halaman Ideas interaktif untuk Suitmedia yang menampilkan berbagai konsep kreatif dan inovatif dalam desain web.",
+    imageUrl: "/projects/suitmedia.png",
+    liveUrl: "https://test-suitmedia-awb.vercel.app/",
+    repoUrl: "",
+    tech: ["React", "Vite"],
+  },
+  {
+    id: 7,
+    title: "Warung App",
+    description: "Aplikasi kasir berbasis speech to text yang memanfaatkan teknologi AI untuk mempermudah proses pencatatan transaksi UMKM.",
+    imageUrl: "/projects/warung-app.jpg",
+    liveUrl: "",
+    repoUrl: "",
+    isComingSoon: true,
+    tech: ["Flutter"]
+  }
 ];

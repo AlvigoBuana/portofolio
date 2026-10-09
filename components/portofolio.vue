@@ -3,6 +3,7 @@
     <div class="content-wrapper">
 
       <div class="title-block">
+        <p class="section-kicker">Selected work · Skills · Milestones</p>
         <h2 class="section-title">Portfolio Showcase</h2>
         <p class="subtitle">The Journey is not end here, Still Learning and Growing to raise the World.</p>
       </div>
@@ -45,11 +46,11 @@
                   <p class="project-desc">{{ project.description }}</p>
 
                   <div class="project-links" :class="{ 'hidden-links': project.isComingSoon }">
-                    <a v-if="project.liveUrl" :href="project.liveUrl" target="_blank" class="btn-link">
+                    <a v-if="project.liveUrl" :href="project.liveUrl" target="_blank" rel="noopener noreferrer" class="btn-link">
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                       Live Demo
                     </a>
-                    <a v-if="project.repoUrl" :href="project.repoUrl" target="_blank" class="btn-link">
+                    <a v-if="project.repoUrl" :href="project.repoUrl" target="_blank" rel="noopener noreferrer" class="btn-link">
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
                       Details
                     </a>
@@ -100,6 +101,28 @@ const setActiveTab = (tabName) => {
 
 // Data Projects Real
 const projects = ref(projectsData);
+const initialDesktopCount = 4;
+const initialTabletCount = 6;
+const initialMobileCount = 4;
+const projectsToShow = ref(initialMobileCount);
+const displayedProjects = computed(() => projects.value.slice(0, projectsToShow.value));
+const isShowingAll = computed(() => projectsToShow.value === projects.value.length);
+
+const showMoreProjects = () => { projectsToShow.value = projects.value.length; };
+const showLessProjects = () => { updateInitialCount(true); };
+
+const updateInitialCount = (forceReset = false) => {
+  if (typeof window === 'undefined') return;
+
+  const screenWidth = window.innerWidth;
+  let initialCount = initialMobileCount;
+  if (screenWidth >= 1400) initialCount = initialDesktopCount;
+  else if (screenWidth >= 768) initialCount = initialTabletCount;
+
+  if (forceReset || !isShowingAll.value) {
+    projectsToShow.value = initialCount;
+  }
+};
 
 // Data Certificates Real
 const certificates = ref(certificatesData);
@@ -119,29 +142,6 @@ const techStack = ref([
   { name: 'C++', iconUrl: 'https://cdn.svgporn.com/logos/c-plusplus.svg' },
   { name: 'C#', iconUrl: 'https://cdn.svgporn.com/logos/c-sharp.svg' },
 ]);
-
-// Logic See More
-const initialDesktopCount = 4;
-const initialTabletCount = 6;
-const initialMobileCount = 4;
-const projectsToShow = ref(initialMobileCount);
-const displayedProjects = computed(() => projects.value.slice(0, projectsToShow.value));
-const isShowingAll = computed(() => projectsToShow.value === projects.value.length);
-
-const showMoreProjects = () => { projectsToShow.value = projects.value.length; };
-const showLessProjects = () => { updateInitialCount(true); };
-
-const updateInitialCount = (forceReset = false) => {
-  if (typeof window === 'undefined') return;
-  const screenWidth = window.innerWidth;
-  let newInitialCount = initialMobileCount;
-  if (screenWidth >= 1400) { newInitialCount = initialDesktopCount; }
-  else if (screenWidth >= 768) { newInitialCount = initialTabletCount; }
-
-  if (forceReset || !isShowingAll.value) {
-    projectsToShow.value = newInitialCount;
-  }
-};
 
 // Logic Animation & Signal Receiver
 const portfolioSectionRef = ref(null);
@@ -170,7 +170,6 @@ onMounted(() => {
   }, { threshold: 0.1 });
 
   if (portfolioSectionRef.value) { observer.observe(portfolioSectionRef.value); }
-
   updateInitialCount();
   window.addEventListener('resize', updateInitialCount);
 });
@@ -185,9 +184,11 @@ onBeforeUnmount(() => {
 <style scoped>
 #portofolio {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
+  padding-inline: 0;
   padding-top: 50px;
   scroll-margin-top: 80px;
+  min-height: 100vh;
 }
 
 .content-wrapper {
@@ -195,12 +196,27 @@ onBeforeUnmount(() => {
   z-index: 1;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem 6rem;
+  padding: 0 clamp(1.25rem, 5vw, 4rem) 6rem;
 }
 
 /* ==== TITLES ==== */
 .title-block { text-align: center; margin-bottom: 3rem; }
-.section-title { font-size: 3rem; font-weight: 700; color: var(--pikachu-yellow); margin-bottom: 0.5rem; }
+.section-kicker {
+  color: var(--pikachu-yellow);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+.section-title {
+  color: var(--text-white);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.1rem, 6vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  margin-bottom: 0.5rem;
+}
 .subtitle { color: rgb(209, 213, 219); }
 
 /* ==== TABS NAV ==== */
@@ -239,8 +255,9 @@ onBeforeUnmount(() => {
     /* Ubah jadi vertikal: Icon Atas, Teks Bawah */
     flex-direction: column;
     text-align: center;
-    padding: 0.75rem 0.25rem; /* Kurangi padding kiri-kanan */
-    font-size: 0.75rem; /* Kecilin font dikit biar muat */
+    min-height: 4rem;
+    padding: 0.6rem 0.25rem;
+    font-size: clamp(0.68rem, 2.6vw, 0.75rem);
     height: 100%; /* Samain tinggi semua tombol */
   }
 
@@ -252,6 +269,19 @@ onBeforeUnmount(() => {
   }
 
   .section-title { font-size: 2.5rem; }
+}
+
+@media (max-width: 380px) {
+  .content-wrapper { padding-inline: 0.85rem; }
+  .title-block { margin-bottom: 2rem; }
+  .section-title { font-size: clamp(1.9rem, 8.5vw, 2.2rem); }
+  .portfolio-nav { gap: 0.35rem; }
+  .portfolio-nav button { font-size: 0.65rem; }
+  .portfolio-nav button svg { width: 1.2rem; height: 1.2rem; }
+  .project-info { padding: 1rem; }
+  .project-title { font-size: 1.25rem; }
+  .btn-link { min-height: 2.5rem; }
+  .btn-see-more { min-height: 2.75rem; padding-inline: 1.25rem; }
 }
 
 /* ==== MOBILE KECIL (TECH STACK) ==== */
@@ -332,51 +362,158 @@ onBeforeUnmount(() => {
   .tech-item { padding: 0.5rem; }
 }
 
-/* ==== PROJECTS GRID ==== */
+/* ==== PROJECT GRID ==== */
 .project-grid { grid-template-columns: 1fr; }
 @media (min-width: 640px) { .project-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1024px) { .project-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1400px) { .project-grid { grid-template-columns: repeat(4, 1fr); } }
 
-/* Base card styles */
-.project-card, .certificate-card, .tech-item {
-  background: rgba(30, 30, 30, 0.5); backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 215, 0, 0.2);
+.project-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(215, 181, 109, 0.2);
   border-radius: 12px;
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.project-card:hover, .certificate-card:hover, .tech-item:hover {
-  transform: translateY(-5px); border-color: var(--pikachu-yellow);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  background: rgba(30, 26, 19, 0.72);
+  backdrop-filter: blur(12px);
+  transition: transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
 }
 
-/* Project card detail */
-.project-card { overflow: hidden; display: flex; flex-direction: column; }
+.project-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--pikachu-yellow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
 .project-image-wrapper {
-  width: 100%; height: 200px; overflow: hidden; position: relative;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(215, 181, 109, 0.2);
 }
-.project-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+
+.project-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease;
+}
+
 .project-card:hover .project-image { transform: scale(1.05); }
-.project-info { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
-.project-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
-.project-desc { color: rgb(209, 213, 219); font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1; }
+.project-info { display: flex; flex: 1; flex-direction: column; padding: 1.5rem; }
+.project-title { margin-bottom: 0.5rem; font-size: 1.5rem; }
+.project-desc { flex-grow: 1; margin-bottom: 1rem; color: rgb(209, 213, 219); font-size: 0.9rem; }
 .project-links { display: flex; gap: 1.5rem; margin-top: auto; }
+
 .btn-link {
-  display: flex; align-items: center; gap: 0.5rem; font-weight: 600;
-  color: var(--text-white); text-decoration: none; transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-white);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 300ms ease;
 }
+
 .btn-link:hover { color: var(--pikachu-yellow); }
 .btn-link svg { width: 1rem; height: 1rem; }
 
-/* See more */
 .see-more-wrapper { display: flex; justify-content: center; gap: 1rem; margin-top: 2.5rem; }
+
 .btn-see-more {
-  padding: 0.75rem 2rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;
-  background: transparent; color: var(--pikachu-yellow); border: 2px solid var(--pikachu-yellow);
-  transition: all 0.3s ease;
+  padding: 0.75rem 2rem;
+  border: 2px solid var(--pikachu-yellow);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--pikachu-yellow);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 300ms ease, color 300ms ease;
 }
+
 .btn-see-more:hover { background: var(--pikachu-yellow); color: var(--bg-dark); }
+
+.project-card.coming-soon {
+  border-color: rgba(255, 255, 255, 0.05);
+  background: rgba(20, 20, 20, 0.4);
+  cursor: default;
+}
+
+.project-card.coming-soon:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+}
+
+.project-card.coming-soon .project-image {
+  filter: grayscale(100%) blur(4px);
+  opacity: 0.5;
+  transform: scale(1);
+}
+
+.coming-soon-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coming-soon-overlay span {
+  padding: 0.5rem 1.5rem;
+  transform: rotate(-10deg);
+  border: 2px solid #000;
+  background: var(--pikachu-yellow);
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  box-shadow: 0 0 20px rgba(215, 181, 109, 0.6);
+}
+
+.project-card.coming-soon .project-title,
+.project-card.coming-soon .project-desc { opacity: 0.5; }
+.hidden-links { visibility: hidden; pointer-events: none; }
+
+.certificate-card,
+.tech-item {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 300ms ease,
+    box-shadow 300ms ease,
+    background-color 300ms ease;
+}
+
+#portofolio.in-view .certificate-card,
+#portofolio.in-view .tech-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#portofolio.in-view .certificate-card:hover,
+#portofolio.in-view .tech-item:hover {
+  transform: translateY(-5px);
+}
+
+#portofolio.in-view .certificate-card:nth-child(4n + 2),
+#portofolio.in-view .tech-item:nth-child(4n + 2) {
+  transition-delay: 100ms;
+}
+
+#portofolio.in-view .certificate-card:nth-child(4n + 3),
+#portofolio.in-view .tech-item:nth-child(4n + 3) {
+  transition-delay: 180ms;
+}
+
+#portofolio.in-view .certificate-card:nth-child(4n + 4),
+#portofolio.in-view .tech-item:nth-child(4n + 4) {
+  transition-delay: 260ms;
+}
 
 /* ==== CERTIFICATES GRID ==== */
 .certificate-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
@@ -412,25 +549,6 @@ onBeforeUnmount(() => {
 }
 .tech-name { font-weight: 600; font-size: 0.9rem; color: var(--text-white); text-align: center; }
 
-/* ==== COMING SOON STYLES ==== */
-.project-card.coming-soon {
-  border-color: rgba(255, 255, 255, 0.05); background: rgba(20, 20, 20, 0.4); cursor: default;
-}
-.project-card.coming-soon:hover { transform: none; border-color: rgba(255, 255, 255, 0.05); box-shadow: none; }
-.project-card.coming-soon .project-image {
-  filter: grayscale(100%) blur(4px); opacity: 0.5; transform: scale(1);
-}
-.coming-soon-overlay {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10;
-}
-.coming-soon-overlay span {
-  background: var(--pikachu-yellow); color: #000; padding: 0.5rem 1.5rem;
-  font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 1.2rem;
-  letter-spacing: 2px; transform: rotate(-10deg); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-  border: 2px solid #000;
-}
-.project-card.coming-soon .project-title, .project-card.coming-soon .project-desc { opacity: 0.5; }
-.hidden-links { visibility: hidden; pointer-events: none; }
 
 /* ==== ANIMATIONS (Scroll Fade In) ==== */
 /* Style awal: Opacity 0 dan agak turun */
