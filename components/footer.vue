@@ -1,18 +1,10 @@
 <template>
   <footer ref="footerRef" class="footer">
-    <video
+        <BackgroundVideo
       class="footer-video"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="metadata"
-      aria-hidden="true"
-      tabindex="-1"
-      @error="handleVideoError"
-    >
-      <source src="/footerClip.mp4" type="video/mp4" />
-    </video>
+      src="/footerClip.mp4"
+      poster="/footerClip-poster.webp"
+    />
     <div class="footer-video-overlay" aria-hidden="true"></div>
     <div class="footer-divider"></div>
 
@@ -68,6 +60,9 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { scrollToSection } from "~/utils/navigation.js";
+
+const scrollToTop = () => scrollToSection("home");
 
 // Ambil tahun otomatis biar ga usah ganti manual tiap tahun baru
 const currentYear = new Date().getFullYear();
@@ -92,26 +87,6 @@ const socialLinks = ref([
 
 const footerRef = ref(null);
 let observer = null;
-
-const handleVideoError = (event) => {
-  const video = event.currentTarget;
-  console.error("Footer background video could not be loaded.", {
-    source: video.currentSrc,
-    mediaErrorCode: video.error?.code,
-    mediaErrorMessage: video.error?.message,
-  });
-};
-
-const scrollToSection = (id) => {
-  const element = document.getElementById(id);
-  if (element) {
-    element.scrollIntoView({ behavior: "smooth" });
-  }
-};
-
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
 
 onMounted(() => {
   observer = new IntersectionObserver(

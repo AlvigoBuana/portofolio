@@ -1,23 +1,42 @@
 <template>
   <section class="welcome-screen" :class="{ 'fade-out': fadeOut }">
+    <video
+      ref="backgroundVideoRef"
+      class="welcome-video"
+      :autoplay="!prefersReducedMotion"
+      muted
+      playsinline
+      preload="auto"
+      aria-hidden="true"
+      tabindex="-1"
+      @playing="handleVideoPlaying"
+      @loadedmetadata="handleVideoMetadata"
+      @ended="finish"
+      @error="handleVideoError"
+    >
+      <source src="/welcome1.mp4" type="video/mp4">
+    </video>
+    <div class="welcome-video-overlay" aria-hidden="true"></div>
+
     <div class="welcome-content">
       <div class="icon-row">
         <div
           v-for="(icon, index) in icons"
-          :key="index"
-          class="icon-wrapper g-fade-in-up"
-          :style="{ animationDelay: `${index * 0.2}s` }"
+          :key="icon"
+          class="icon-wrapper enter enter-up"
+          :class="{ 'is-in': showIcons }"
+          :style="{ transitionDelay: `${index * 0.15}s` }"
         >
           <img :src="icon" alt="icon" class="icon" />
         </div>
       </div>
 
       <h1 class="welcome-title">
-        <span class="g-fade-in-left">Welcome</span>
-        <span class="g-fade-in-right" :style="{ animationDelay: '0.4s' }">to My Portfolio</span>
+        <span class="enter enter-left" :class="{ 'is-in': showTitleLeft }">Welcome</span>
+        <span class="enter enter-right" :class="{ 'is-in': showTitleRight }">to My Portfolio</span>
       </h1>
 
-      <p class="welcome-link">
+      <p class="welcome-link enter enter-up" :class="{ 'is-in': showLink }">
         <span>{{ typedText }}</span><span class="cursor">|</span>
       </p>
     </div>
@@ -25,37 +44,174 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const emit = defineEmits(['animationFinished'])
 
-const icons = [
-  '/github.svg',
-  '/linkedin.svg',
-  '/instagram.svg'
-]
+// --- Pengaturan timeline ---
+const FALLBACK_DURATION = 5      // dipakai kalau video tidak bisa diputar
+const REDUCED_DURATION = 3       // durasi singkat untuk prefers-reduced-motion
+const FADE_SECONDS = 1           // lama fade-out di akhir (samakan dengan transition CSS)
+const VIDEO_START_TIMEOUT = 1500 // tunggu video mulai main sebelum pakai timer cadangan (ms)
+
+// Waktu kemunculan, dalam persen dari "jendela konten" (durasi video - fade-out)
+const AT = {
+  icons: 0.05,
+  titleLeft: 0.2,
+  titleRight: 0.32,
+  link: 0.5,       // URL mulai diketik
+  typeEnd: 0.92,   // URL selesai diketik
+}
+
+const backgroundVideoRef = ref(null)
+const prefersReducedMotion = ref(false)
+const icons = ['/github.svg', '/linkedin.svg', '/instagram.svg']
 const typedText = ref('')
 const fullText = 'portofolio-alvigowb.vercel.app'
-let charIndex = 0
 const fadeOut = ref(false)
 
-onMounted(() => {
-  const typeInterval = setInterval(() => {
-    if (charIndex < fullText.length) {
-      typedText.value += fullText.charAt(charIndex)
-      charIndex++
-    } else {
-      clearInterval(typeInterval)
-    }
-  }, 100)
+const showIcons = ref(false)
+const showTitleLeft = ref(false)
+const showTitleRight = ref(false)
+const showLink = ref(false)
 
-  setTimeout(() => {
+let clock = 'pending' // 'pending' | 'video' | 'timer'
+let started = false
+let finished = false
+let timerStart = 0
+let rafId = 0
+let startTimeoutId = 0
+let safetyTimeoutId = 0
+let finishTimeoutId = 0
+let motionPreference = null
+
+const getDuration = () => {
+  const video = backgroundVideoRef.value
+  if (clock === 'video' && video && Number.isFinite(video.duration)) {
+    return video.duration
+  }
+  return prefersReducedMotion.value ? REDUCED_DURATION : FALLBACK_DURATION
+}
+
+const getElapsed = () => {
+  const video = backgroundVideoRef.value
+  if (clock === 'video' && video) return video.currentTime
+  return (performance.now() - timerStart) / 1000
+}
+
+const revealAll = () => {
+  showIcons.value = true
+  showTitleLeft.value = true
+  showTitleRight.value = true
+  showLink.value = true
+  typedText.value = fullText
+}
+
+const finish = () => {
+  if (finished) return
+  finished = true
+  cancelAnimationFrame(rafId)
+  window.clearTimeout(safetyTimeoutId)
+
+  const alreadyFading = fadeOut.value
+  fadeOut.value = true
+  finishTimeoutId = window.setTimeout(
+    () => emit('animationFinished'),
+    alreadyFading ? 0 : FADE_SECONDS * 1000,
+  )
+}
+
+const tick = () => {
+  if (finished) return
+
+  const elapsed = getElapsed()
+  const duration = getDuration()
+  const windowLength = Math.max(duration - FADE_SECONDS, 0.5)
+
+  // Kemunculan tiap elemen mengikuti jam video
+  if (!showIcons.value && elapsed >= windowLength * AT.icons) showIcons.value = true
+  if (!showTitleLeft.value && elapsed >= windowLength * AT.titleLeft) showTitleLeft.value = true
+  if (!showTitleRight.value && elapsed >= windowLength * AT.titleRight) showTitleRight.value = true
+  if (!showLink.value && elapsed >= windowLength * AT.link) showLink.value = true
+
+  // Typing: kecepatan dihitung supaya URL selesai tepat di AT.typeEnd
+  const typeStart = windowLength * AT.link
+  const typeSpan = Math.max(windowLength * (AT.typeEnd - AT.link), 0.1)
+  const progress = Math.min(Math.max((elapsed - typeStart) / typeSpan, 0), 1)
+  const next = fullText.slice(0, Math.floor(progress * fullText.length))
+  if (next !== typedText.value) typedText.value = next
+
+  if (!fadeOut.value && elapsed >= duration - FADE_SECONDS) {
+    typedText.value = fullText // pastikan URL lengkap sebelum fade
     fadeOut.value = true
+  }
 
-    setTimeout(() => {
-      emit('animationFinished')
-    }, 1000)
-  }, 3000)
+  if (elapsed >= duration) {
+    finish()
+    return
+  }
+
+  rafId = requestAnimationFrame(tick)
+}
+
+const begin = (source) => {
+  if (started) return
+  started = true
+  clock = source
+  timerStart = performance.now()
+  window.clearTimeout(startTimeoutId)
+
+  // Jaga-jaga kalau video macet total di tengah jalan
+  safetyTimeoutId = window.setTimeout(finish, (getDuration() + 3) * 1000)
+  rafId = requestAnimationFrame(tick)
+}
+
+const handleVideoPlaying = () => begin('video')
+
+const updateMotionPreference = () => {
+  prefersReducedMotion.value = motionPreference?.matches ?? false
+  const video = backgroundVideoRef.value
+  if (!video) return
+
+  if (prefersReducedMotion.value) {
+    video.pause()
+  } else {
+    video.play().catch((error) => {
+      console.warn('Welcome background video autoplay was prevented.', error)
+    })
+  }
+}
+
+const handleVideoError = (event) => {
+  const video = event.currentTarget
+  console.error('Welcome background video could not be loaded.', {
+    source: video.currentSrc,
+    mediaErrorCode: video.error?.code,
+    mediaErrorMessage: video.error?.message,
+  })
+  begin('timer') // video gagal, tetap lanjutkan dengan timer
+}
+
+onMounted(() => {
+  motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
+  updateMotionPreference()
+  motionPreference.addEventListener('change', updateMotionPreference)
+
+  if (prefersReducedMotion.value) {
+    revealAll()
+    begin('timer')
+  } else {
+    // Kalau video tidak mulai main dalam 1,5 detik (autoplay diblokir, dll), pakai timer
+    startTimeoutId = window.setTimeout(() => begin('timer'), VIDEO_START_TIMEOUT)
+  }
+})
+
+onBeforeUnmount(() => {
+  cancelAnimationFrame(rafId)
+  window.clearTimeout(startTimeoutId)
+  window.clearTimeout(safetyTimeoutId)
+  window.clearTimeout(finishTimeoutId)
+  motionPreference?.removeEventListener('change', updateMotionPreference)
 })
 </script>
 
@@ -80,12 +236,37 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.welcome-video,
+.welcome-video-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.welcome-video {
+  z-index: 0;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.58;
+}
+
+.welcome-video-overlay {
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(10, 10, 10, 0.72), rgba(10, 10, 10, 0.34)),
+    linear-gradient(0deg, rgba(10, 10, 10, 0.72), rgba(10, 10, 10, 0.18));
+}
+
 .welcome-screen.fade-out {
   opacity: 0;
   visibility: hidden;
 }
 
 .welcome-content {
+  position: relative;
+  z-index: 2;
   text-align: center;
   color: #fff;
   padding: 0 1.5rem;
@@ -101,8 +282,20 @@ onMounted(() => {
   margin-bottom: clamp(1rem, 4vw, 1.5rem);
 }
 
-.icon-wrapper {
+/* Animasi masuk: dipicu oleh jam video lewat class .is-in */
+.enter {
   opacity: 0;
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.8, 0.3, 1),
+    transform 0.7s cubic-bezier(0.22, 0.8, 0.3, 1);
+  will-change: opacity, transform;
+}
+.enter-up { transform: translateY(18px); }
+.enter-left { transform: translateX(-40px); }
+.enter-right { transform: translateX(40px); }
+.enter.is-in {
+  opacity: 1;
+  transform: none;
 }
 
 .icon {
@@ -148,12 +341,20 @@ onMounted(() => {
   width: 2px;
   background: var(--pikachu-yellow);
   animation: blink 1s infinite;
-  animation-delay: 2.2s;
   vertical-align: middle;
 }
 
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-video {
+    display: none;
+  }
+  .enter {
+    transition: none;
+  }
 }
 </style>

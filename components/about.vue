@@ -6,21 +6,17 @@
       :class="{ 'is-content-revealed': isAboutRevealed }"
       :style="aboutMotionStyle"
     >
-      <video
-        ref="aboutVideoRef"
-        class="about-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="metadata"
-        aria-hidden="true"
-        tabindex="-1"
-        @error="handleAboutVideoError"
-      >
-        <source src="/aboutBackground.mp4" type="video/mp4" />
-      </video>
-      <div class="about-video-overlay" aria-hidden="true"></div>
+      <div class="about-bg" :class="{ 'is-zoomed': isAboutRevealed }">
+        <div class="about-bg-zoom">
+          <BackgroundVideo
+            class="about-video"
+            src="/aboutClip.mp4"
+            poster="/aboutClip-poster.webp"
+            :active="!isAboutGone"
+          />
+          <div class="about-video-overlay" aria-hidden="true"></div>
+        </div>
+      </div>
       <div class="content-wrapper about-content">
         <div class="title-block">
           <p class="section-kicker animated-item">
@@ -84,7 +80,7 @@
               </div>
             </div>
             <div class="intro-photo animated-item from-right">
-              <img src="/profil2.png" alt="Alvigo Wahyu Buana" />
+              <img src="/profil2.webp" alt="Alvigo Wahyu Buana" />
             </div>
           </div>
 
@@ -147,251 +143,43 @@
 
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount } from "vue";
-import { createSteppedScrollController } from "~/utils/steppedScroll.js";
+import { registerScrollStops } from "~/utils/steppedScroll.js";
+import { scrollToSection } from "~/utils/navigation.js";
+import { createScrollBurnTransition } from "~/utils/scrollBurnTransition.js";
+
+const MOBILE_BREAKPOINT = 992;
+const DETAILS_REVEAL_THRESHOLD = 0.98;
 
 const aboutTrackRef = ref(null);
 const aboutSectionRef = ref(null);
 const aboutWaveRef = ref(null);
-const aboutVideoRef = ref(null);
-const aboutProgress = ref(0);
-const isAboutRevealed = ref(false);
-const detailsRevealThreshold = 0.98;
+
 const aboutClipPath = ref("none");
+const isAboutRevealed = ref(false);
+const isAboutGone = ref(false);
 const aboutMotionStyle = computed(() => ({
   clipPath: aboutClipPath.value,
 }));
+
 let observer = null;
 let progressFrameId = 0;
-let burnAnimationFrameId = 0;
-let lastBurnFrameTime = 0;
-let burnProgress = 0;
-let waveContext = null;
-let canvasWidth = 0;
-let canvasHeight = 0;
-let canvasScale = 1;
-let stopSteppedScroll = null;
+let unregisterStops = null;
 let motionPreference = null;
+let burn = null;
 
-const updateAboutVideoMotionPreference = () => {
-  if (!aboutVideoRef.value) return;
-
-  if (motionPreference?.matches) {
-    aboutVideoRef.value.pause();
-  } else {
-    aboutVideoRef.value.play().catch((error) => {
-      console.warn("About background video autoplay was prevented.", error);
-    });
-  }
+// Hanya dipakai untuk mem-pause video setelah tertutup sepenuhnya
+const handleBurnProgress = (progress) => {
+  isAboutGone.value = progress >= 0.99;
 };
 
-const handleAboutVideoError = (event) => {
-  const video = event.currentTarget;
-  console.error("About background video could not be loaded.", {
-    source: video.currentSrc,
-    mediaErrorCode: video.error?.code,
-    mediaErrorMessage: video.error?.message,
-  });
-};
-
-const hashNoise = (value) => {
-  const result = Math.sin(value * 127.1 + 311.7) * 43758.5453;
-  return result - Math.floor(result);
-};
-
-const noise = (value, phase) => {
-  const shifted = value + phase;
-  const left = Math.floor(shifted);
-  const fraction = shifted - left;
-  const smoothFraction = fraction * fraction * (3 - 2 * fraction);
-
-  return (
-    hashNoise(left) * (1 - smoothFraction) +
-    hashNoise(left + 1) * smoothFraction
-  );
-};
-
-const getWaterline = (x, baseY, drift, phase) => {
-  const shiftedX = x + drift;
-  const swell =
-    Math.sin(shiftedX * 0.003 + phase * 0.24) * 10 +
-    Math.sin(shiftedX * 0.009 - phase * 0.17) * 6;
-  const chop =
-    (noise(shiftedX * 0.018, phase * 0.13) - 0.5) * 28 +
-    (noise(shiftedX * 0.052, -phase * 0.19) - 0.5) * 22 +
-    (noise(shiftedX * 0.15, phase * 0.23) - 0.5) * 16 +
-    (noise(shiftedX * 0.43, -phase * 0.31) - 0.5) * 8;
-
-  return baseY + swell + chop;
-};
-
-const createClipPath = (progress, phase, drift) => {
-  const amplitude = Math.sin(progress * Math.PI);
-  const segments = Math.ceil(canvasWidth / 5);
-  const edge = [];
-  const baseY = canvasHeight * (1 - progress);
-
-  for (let index = segments; index >= 0; index -= 1) {
-    const x = (canvasWidth * index) / segments;
-    const waterline = getWaterline(x, baseY, drift, phase);
-    const y = baseY + (waterline - baseY) * amplitude;
-    edge.push(`${x.toFixed(1)} ${y.toFixed(1)}`);
-  }
-
-  const burnHoles = [];
-  const holeCount = Math.max(4, Math.round(canvasWidth / 140));
-  for (let index = 0; index < holeCount; index += 1) {
-    const seed = index * 43.7 + 9.2;
-    const x =
-      (hashNoise(seed) * canvasWidth +
-        Math.sin(seed + phase * 0.1) * 9 +
-        canvasWidth) %
-      canvasWidth;
-    const y =
-      getWaterline(x, baseY, drift, phase) +
-      (hashNoise(seed + 6.1) - 0.5) * 44 * amplitude;
-    const radius = (8 + hashNoise(seed + 12.4) * 18) * Math.sqrt(amplitude);
-    const vertices = [];
-    const vertexCount = 8;
-
-    for (let vertex = 0; vertex < vertexCount; vertex += 1) {
-      const angle = -((vertex / vertexCount) * Math.PI * 2);
-      const unevenRadius =
-        radius * (0.72 + hashNoise(seed + vertex * 3.1) * 0.55);
-      vertices.push({
-        x: x + Math.cos(angle) * unevenRadius,
-        y: y + Math.sin(angle) * unevenRadius * 0.7,
-      });
-    }
-
-    const midpoints = vertices.map((vertex, vertexIndex) => {
-      const next = vertices[(vertexIndex + 1) % vertexCount];
-      return { x: (vertex.x + next.x) / 2, y: (vertex.y + next.y) / 2 };
-    });
-    let holePath = `M ${midpoints[vertexCount - 1].x.toFixed(1)} ${midpoints[vertexCount - 1].y.toFixed(1)}`;
-    vertices.forEach((vertex, vertexIndex) => {
-      holePath += ` Q ${vertex.x.toFixed(1)} ${vertex.y.toFixed(1)} ${midpoints[vertexIndex].x.toFixed(1)} ${midpoints[vertexIndex].y.toFixed(1)}`;
-    });
-    burnHoles.push(`${holePath} Z`);
-  }
-
-  const path = `M 0 0 H ${canvasWidth.toFixed(1)} L ${edge.join(" L ")} L 0 0 Z ${burnHoles.join(" ")}`;
-  return `path('${path}')`;
-};
-
-const resizeWaveCanvas = () => {
-  const canvas = aboutWaveRef.value;
-  if (!canvas) return;
-
-  const bounds = canvas.getBoundingClientRect();
-  canvasWidth = bounds.width;
-  canvasHeight = bounds.height;
-  canvasScale = Math.min(window.devicePixelRatio || 1, 1.5);
-  canvas.width = Math.round(canvasWidth * canvasScale);
-  canvas.height = Math.round(canvasHeight * canvasScale);
-  waveContext = canvas.getContext("2d");
-  waveContext?.setTransform(canvasScale, 0, 0, canvasScale, 0, 0);
-};
-
-const drawWave = (progress, animationPhase = 0) => {
-  const context = waveContext;
-  if (!context || !canvasWidth || !canvasHeight) return;
-
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
-  if (progress <= 0) {
-    aboutClipPath.value = "none";
-    return;
-  }
-
-  const phase = progress * Math.PI * 8 + animationPhase;
-  const drift = progress * canvasWidth * 0.24 + animationPhase * 18;
-  const waterlineY = canvasHeight * (1 - progress);
-  const noiseAmount = Math.sin(progress * Math.PI);
-  const step = Math.max(2, canvasWidth / 700);
-  const points = [];
-
-  for (let x = -step; x <= canvasWidth + step; x += step) {
-    points.push({
-      x,
-      y:
-        waterlineY +
-        (getWaterline(x, waterlineY, drift, phase) - waterlineY) * noiseAmount,
-    });
-  }
-
-  aboutClipPath.value = createClipPath(progress, phase, drift);
-
-  context.save();
-  context.globalAlpha = noiseAmount;
-  context.globalCompositeOperation = "source-over";
-
-  const burnGlow = context.createLinearGradient(
-    0,
-    waterlineY - 100,
-    0,
-    waterlineY + 100,
-  );
-  burnGlow.addColorStop(0, "rgba(9, 11, 14, 0)");
-  burnGlow.addColorStop(0.31, "rgba(9, 11, 14, 0.22)");
-  burnGlow.addColorStop(0.48, "rgba(35, 39, 42, 0.06)");
-  burnGlow.addColorStop(0.56, "rgba(9, 11, 14, 0.16)");
-  burnGlow.addColorStop(1, "rgba(9, 11, 14, 0)");
-  context.fillStyle = burnGlow;
-  context.fillRect(0, waterlineY - 100, canvasWidth, 200);
-
-  for (let layer = 0; layer < 4; layer += 1) {
-    context.beginPath();
-    points.forEach((point, index) => {
-      const textureY =
-        point.y +
-        (5 + layer * 7) * noiseAmount +
-        Math.sin((point.x + drift * 0.7) * 0.012 + phase * 0.37 + layer) *
-          (2 + layer);
-      if (index === 0) context.moveTo(point.x, textureY);
-      else context.lineTo(point.x, textureY);
-    });
-
-    context.strokeStyle = `rgba(34, 38, 41, ${0.09 - layer * 0.015})`;
-    context.lineWidth = layer === 0 ? 1 : 0.65;
-    context.stroke();
-  }
-
-  context.restore();
-};
-
-const animateBurnEdge = (timestamp) => {
-  burnAnimationFrameId = 0;
-  if (
-    burnProgress <= 0 ||
-    burnProgress >= 1 ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  )
-    return;
-
-  if (timestamp - lastBurnFrameTime >= 40) {
-    lastBurnFrameTime = timestamp;
-    drawWave(burnProgress, timestamp * 0.00022);
-  }
-
-  burnAnimationFrameId = requestAnimationFrame(animateBurnEdge);
-};
-
-const startBurnAnimation = () => {
-  if (
-    burnAnimationFrameId ||
-    burnProgress <= 0 ||
-    burnProgress >= 1 ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  )
-    return;
-
-  burnAnimationFrameId = requestAnimationFrame(animateBurnEdge);
-};
+const handleMotionChange = () => burn?.refresh();
 
 const updateAboutProgress = () => {
   progressFrameId = 0;
   const track = aboutTrackRef.value;
   if (!track) return;
 
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
   const trackTop = track.getBoundingClientRect().top;
   const scrolledPastTrackStart = Math.max(-trackTop, 0);
   const settleDistance = Math.max(window.innerHeight * 0.5, 1);
@@ -400,20 +188,14 @@ const updateAboutProgress = () => {
     1,
   );
 
-  aboutProgress.value = Math.min(scrolledPastTrackStart / settleDistance, 1);
+  const settleProgress = Math.min(scrolledPastTrackStart / settleDistance, 1);
   const aboutHasSettled =
-    trackTop <= 1 || aboutProgress.value >= detailsRevealThreshold;
+    trackTop <= 1 || settleProgress >= DETAILS_REVEAL_THRESHOLD;
+
   isAboutRevealed.value =
-    window.innerWidth <= 992 ||
-    aboutHasSettled && transitionProgress <= 0.001;
-  burnProgress = window.innerWidth <= 992 ? 0 : transitionProgress;
-  drawWave(burnProgress, performance.now() * 0.00022);
-  if (burnProgress > 0 && burnProgress < 1) {
-    startBurnAnimation();
-  } else if (burnAnimationFrameId) {
-    cancelAnimationFrame(burnAnimationFrameId);
-    burnAnimationFrameId = 0;
-  }
+    isMobile || (aboutHasSettled && transitionProgress <= 0.001);
+
+  burn?.setProgress(isMobile ? 0 : transitionProgress);
 };
 
 const scheduleAboutProgress = () => {
@@ -422,22 +204,29 @@ const scheduleAboutProgress = () => {
   }
 };
 
-const scrollToJourney = () => {
-  const journeySection = document.getElementById("journey");
-
-  if (journeySection) {
-    journeySection.scrollIntoView({ behavior: "smooth" });
-  }
+const handleWaveResize = () => {
+  burn?.resize();
+  scheduleAboutProgress();
 };
+
+const scrollToJourney = () => scrollToSection("journey");
 
 onMounted(() => {
   motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-  updateAboutVideoMotionPreference();
-  motionPreference.addEventListener("change", updateAboutVideoMotionPreference);
-  resizeWaveCanvas();
-  stopSteppedScroll = createSteppedScrollController(() => {
+  motionPreference.addEventListener("change", handleMotionChange);
+
+  burn = createScrollBurnTransition({
+    getCanvas: () => aboutWaveRef.value,
+    onClipPath: (value) => {
+      aboutClipPath.value = value;
+    },
+    onProgress: handleBurnProgress,
+  });
+  burn.resize();
+
+  unregisterStops = registerScrollStops("about", () => {
     const track = aboutTrackRef.value;
-    if (!track || window.innerWidth <= 992) return [];
+    if (!track || window.innerWidth <= MOBILE_BREAKPOINT) return [];
 
     const start = track.getBoundingClientRect().top + window.scrollY;
     const settleDistance = window.innerHeight * 0.5;
@@ -449,6 +238,7 @@ onMounted(() => {
       ),
     ];
   });
+
   updateAboutProgress();
   window.addEventListener("scroll", scheduleAboutProgress, { passive: true });
   window.addEventListener("resize", handleWaveResize);
@@ -456,43 +246,28 @@ onMounted(() => {
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        // Logic Animasi Replay
-        if (entry.isIntersecting) {
-          // Pas masuk layar: Tambah class (Mulai Animasi)
-          entry.target.classList.add("in-view");
-        } else {
-          // Pas keluar layar: Hapus class (Reset Animasi biar bisa main lagi nanti)
-          entry.target.classList.remove("in-view");
-        }
+        entry.target.classList.toggle("in-view", entry.isIntersecting);
       });
     },
     { threshold: 0.01 },
   );
 
-  if (aboutSectionRef.value) {
-    observer.observe(aboutSectionRef.value);
-  }
+  if (aboutSectionRef.value) observer.observe(aboutSectionRef.value);
 });
 
-const handleWaveResize = () => {
-  resizeWaveCanvas();
-  scheduleAboutProgress();
-};
-
 onBeforeUnmount(() => {
-  if (observer) observer.disconnect();
+  observer?.disconnect();
   window.removeEventListener("scroll", scheduleAboutProgress);
   window.removeEventListener("resize", handleWaveResize);
-  stopSteppedScroll?.();
-  motionPreference?.removeEventListener(
-    "change",
-    updateAboutVideoMotionPreference,
-  );
+  unregisterStops?.();
+  motionPreference?.removeEventListener("change", handleMotionChange);
   if (progressFrameId) cancelAnimationFrame(progressFrameId);
+  burn?.destroy();
 });
 </script>
 
 <style scoped>
+/* ===== LAYOUT DASAR ===== */
 .about-track {
   position: relative;
   z-index: 1;
@@ -507,34 +282,11 @@ onBeforeUnmount(() => {
   z-index: 1;
   isolation: isolate;
   height: 100svh;
-  background: #111820;
   padding-top: 50px;
   padding-bottom: 100px;
   scroll-margin-top: 80px;
+  background: #111820;
   pointer-events: auto;
-}
-
-.about-video,
-.about-video-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.about-video {
-  z-index: 0;
-  object-fit: cover;
-  object-position: center;
-  opacity: 0.62;
-}
-
-.about-video-overlay {
-  z-index: 1;
-  background:
-    linear-gradient(90deg, rgba(17, 24, 32, 0.55), rgba(17, 24, 32, 0.32)),
-    linear-gradient(0deg, rgba(17, 24, 32, 0.52), rgba(17, 24, 32, 0.14));
 }
 
 .about-wave {
@@ -553,12 +305,57 @@ onBeforeUnmount(() => {
   z-index: 2;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem; /* HAPUS padding top/bottom bawaan global */
+  padding: 0 2rem;
 }
 
+/* ===== BACKGROUND: satu wrapper di-zoom, video + overlay menyatu ===== */
+.about-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.about-bg-zoom {
+  position: absolute;
+  inset: 0;
+  transform: scale(1);
+  transition: transform 1100ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+
+/* Tiba: zoom-in sekali, sedikit lebih lambat supaya kedatangan terasa tegas */
+.about-bg.is-zoomed .about-bg-zoom {
+  transform: scale(1.12);
+  transition: transform 1600ms cubic-bezier(0.2, 0.7, 0.2, 1) 150ms;
+}
+
+.about-video,
+.about-video-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.about-video {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.62;
+}
+
+.about-video-overlay {
+  background:
+    linear-gradient(90deg, rgba(17, 24, 32, 0.55), rgba(17, 24, 32, 0.32)),
+    linear-gradient(0deg, rgba(17, 24, 32, 0.52), rgba(17, 24, 32, 0.14));
+}
+
+/* ===== KONTEN ===== */
 .about-details {
   opacity: 0;
-  transform: translateY(1.5rem) scale(0.985);
+  transform: translateY(2rem) scale(0.94);
   transition:
     opacity 450ms ease-out,
     transform 550ms cubic-bezier(0.2, 0.8, 0.25, 1);
@@ -568,96 +365,110 @@ onBeforeUnmount(() => {
 .about-details.is-revealed {
   opacity: 1;
   transform: translateY(0) scale(1);
+  transition-delay: 250ms;
   pointer-events: auto;
 }
 
 .title-block {
-  text-align: center;
   margin-bottom: 4rem;
+  text-align: center;
 }
+
 .section-kicker {
+  margin-bottom: 0.75rem;
   color: var(--pikachu-yellow);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
-  margin-bottom: 0.75rem;
   text-transform: uppercase;
 }
+
+.section-title {
+  margin-bottom: 0.5rem;
+  color: var(--text-white);
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--pikachu-yellow);
+  font-weight: 500;
+}
+
 .intro-flex {
   display: flex;
   align-items: center;
   gap: 3rem;
   margin-bottom: 4rem;
 }
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-/* ... (lanjutkan CSS Typography, Photo, Buttons, Stats, Animasi, dll seperti sebelumnya) ... */
-.section-title {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--text-white);
-  margin-bottom: 0.5rem;
-}
-.subtitle {
-  color: var(--pikachu-yellow);
-  font-weight: 500;
-}
 
 .intro-text {
   flex: 1;
 }
+
 .intro-text h1 {
+  margin-bottom: 1.5rem;
   font-size: 2.5rem;
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 1.5rem;
 }
+
 .highlight-name {
   color: var(--pikachu-yellow);
 }
+
 .bio {
+  margin-bottom: 1.5rem;
   color: rgb(209, 213, 219);
   line-height: 1.7;
-  margin-bottom: 1.5rem;
 }
 
 .quote {
-  background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--pikachu-yellow);
-  padding: 1rem;
   margin-bottom: 2rem;
-  font-style: italic;
+  padding: 1rem;
+  border-left: 3px solid var(--pikachu-yellow);
+  background: rgba(255, 255, 255, 0.03);
   color: rgb(209, 213, 219);
+  font-style: italic;
 }
 
-.intro-photo {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 350px;
-  aspect-ratio: 1/1;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  position: relative;
+.quote .author {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--pikachu-yellow);
+  font-size: 0.9rem;
+  font-style: normal;
+  font-weight: 600;
 }
+
+/* Foto */
+.intro-photo {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  max-width: 350px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
 .intro-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
   border: 2px transparent;
+  border-radius: 50%;
   box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
   transition: transform 0.4s ease-out;
 }
+
 .intro-photo:hover img {
   transform: scale(1.1);
 }
+
 .intro-photo::after {
   content: "";
   position: absolute;
@@ -674,15 +485,18 @@ onBeforeUnmount(() => {
   transform: translateX(-150%) skewX(-20deg);
   transition: transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
 .intro-photo:hover::after {
   transform: translateX(100%) skewX(-20deg);
 }
 
+/* Tombol */
 .action-buttons {
   display: flex;
-  gap: 1rem;
   flex-wrap: wrap;
+  gap: 1rem;
 }
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -690,84 +504,104 @@ onBeforeUnmount(() => {
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-decoration: none;
 }
+
 .btn svg {
   width: 1.2rem;
   height: 1.2rem;
 }
+
 .btn-primary {
+  border: 2px solid var(--pikachu-yellow);
   background: var(--pikachu-yellow);
   color: var(--bg-dark);
-  border: 2px solid var(--pikachu-yellow);
 }
+
 .btn-primary:hover {
-  transform: translateY(-3px);
-  color: #fff;
   border-color: #fff;
   box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+  color: #fff;
+  transform: translateY(-3px);
 }
+
 .btn-secondary {
+  border: 2px solid rgb(75, 85, 99);
   background: transparent;
   color: var(--text-white);
-  border: 2px solid rgb(75, 85, 99);
 }
+
 .btn-secondary:hover {
   border-color: var(--pikachu-yellow);
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
   color: var(--pikachu-yellow);
   transform: translateY(-3px);
-  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+}
+
+/* Statistik */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
 
 .stat-item {
   position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgb(75, 85, 99);
   padding: 1.5rem;
+  border: 1px solid rgb(75, 85, 99);
   border-radius: 8px;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
+  transition: all 0.3s ease;
 }
+
 .stat-item:hover {
-  transform: translateY(-5px);
   border-color: var(--pikachu-yellow);
+  transform: translateY(-5px);
 }
+
 .stat-icon-wrapper {
-  color: var(--pikachu-yellow);
   width: 32px;
   height: 32px;
   margin-bottom: 1rem;
+  color: var(--pikachu-yellow);
 }
+
 .stat-number {
   display: block;
+  color: var(--text-white);
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--text-white);
 }
+
 .stat-title {
-  font-weight: 500;
   margin-top: 0.5rem;
   color: rgb(209, 213, 219);
+  font-weight: 500;
 }
+
 .stat-desc {
-  font-size: 0.875rem;
   color: rgb(156, 163, 175);
+  font-size: 0.875rem;
 }
+
 .stat-arrow {
   position: absolute;
   right: 1rem;
   bottom: 1rem;
-  font-size: 1.2rem;
   color: var(--pikachu-yellow);
+  font-size: 1.2rem;
   transform: rotate(-45deg);
   transition: transform 0.3s ease;
 }
+
 .stat-item:hover .stat-arrow {
   transform: rotate(0deg);
 }
 
+/* ===== ANIMASI MASUK ITEM ===== */
 .animated-item {
   opacity: 0;
   transform: translateY(30px);
@@ -775,16 +609,21 @@ onBeforeUnmount(() => {
     opacity 0.8s ease-out,
     transform 0.8s ease-out;
 }
+
 .from-left {
   transform: translateX(-50px);
 }
+
 .from-right {
   transform: translateX(50px);
 }
-#about.is-content-revealed .title-block .animated-item {
+
+#about.is-content-revealed .title-block .animated-item,
+.about-details.is-revealed .animated-item {
   opacity: 1;
   transform: translate(0, 0);
 }
+
 #about.is-content-revealed .title-block .animated-item:nth-child(1) {
   transition-delay: 0.1s;
 }
@@ -794,10 +633,7 @@ onBeforeUnmount(() => {
 #about.is-content-revealed .title-block .animated-item:nth-child(3) {
   transition-delay: 0.3s;
 }
-.about-details.is-revealed .animated-item {
-  opacity: 1;
-  transform: translate(0, 0);
-}
+
 .about-details.is-revealed .intro-text .animated-item:nth-child(1) {
   transition-delay: 0.05s;
 }
@@ -823,25 +659,14 @@ onBeforeUnmount(() => {
   transition-delay: 0.44s;
 }
 
-@media (max-width: 992px) {
-  .intro-flex {
-    flex-direction: column-reverse;
-    gap: clamp(1.5rem, 4vw, 3rem);
-    text-align: center;
-  }
-  .intro-photo {
-    margin: 0 auto 1rem;
-    width: min(44vw, 250px);
-    max-width: 250px;
-  }
-  .action-buttons {
-    justify-content: center;
-  }
+/* ===== RESPONSIVE ===== */
+@media (min-width: 1024px) {
+  .bio,
   .quote {
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 650px;
   }
 }
+
 @media (max-width: 992px) {
   .about-track {
     height: auto;
@@ -857,8 +682,14 @@ onBeforeUnmount(() => {
     padding: clamp(6rem, 12vh, 7rem) 0 clamp(3rem, 8vh, 5rem);
   }
 
+  /* Tanpa transisi burn di layar kecil, jadi tanpa zoom */
+  .about-bg-zoom,
+  .about-bg.is-zoomed .about-bg-zoom {
+    transform: none;
+    transition: none;
+  }
+
   .about-video {
-    position: absolute;
     opacity: 0.5;
   }
 
@@ -866,6 +697,10 @@ onBeforeUnmount(() => {
     background:
       linear-gradient(90deg, rgba(17, 24, 32, 0.66), rgba(17, 24, 32, 0.44)),
       linear-gradient(0deg, rgba(17, 24, 32, 0.7), rgba(17, 24, 32, 0.24));
+  }
+
+  .about-wave {
+    display: none;
   }
 
   .content-wrapper {
@@ -884,6 +719,12 @@ onBeforeUnmount(() => {
     font-size: clamp(0.95rem, 4vw, 1.1rem);
   }
 
+  .intro-flex {
+    flex-direction: column-reverse;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    text-align: center;
+  }
+
   .intro-text h1 {
     font-size: clamp(1.8rem, 7.5vw, 2.5rem);
     overflow-wrap: anywhere;
@@ -893,7 +734,28 @@ onBeforeUnmount(() => {
     font-size: clamp(0.9rem, 3.8vw, 1.05rem);
   }
 
+  .quote {
+    margin-inline: auto;
+  }
+
+  .intro-photo {
+    width: min(44vw, 250px);
+    max-width: 250px;
+    margin: 0 auto 1rem;
+  }
+
+  .action-buttons {
+    justify-content: center;
+  }
+
+  .btn {
+    min-height: 2.75rem;
+    padding: 0.65rem clamp(1rem, 4vw, 1.5rem);
+    font-size: clamp(0.9rem, 3.6vw, 1rem);
+  }
+
   .stats-grid {
+    grid-template-columns: 1fr;
     gap: 0.85rem;
   }
 
@@ -905,34 +767,33 @@ onBeforeUnmount(() => {
     font-size: clamp(2rem, 8vw, 2.5rem);
   }
 
-  .btn {
-    min-height: 2.75rem;
-    padding: 0.65rem clamp(1rem, 4vw, 1.5rem);
-    font-size: clamp(0.9rem, 3.6vw, 1rem);
+  .stat-title {
+    font-size: clamp(0.9rem, 3.8vw, 1rem);
   }
 
-  .stat-title { font-size: clamp(0.9rem, 3.8vw, 1rem); }
-  .stat-desc { font-size: clamp(0.78rem, 3.3vw, 0.875rem); }
-
-  .about-wave {
-    display: none;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .stat-desc {
+    font-size: clamp(0.78rem, 3.3vw, 0.875rem);
   }
 }
 
 @media (max-width: 768px) {
-  .about-video,
-  .about-video-overlay {
+  /* Video tidak dimuat sama sekali di HP */
+  .about-bg {
     display: none;
   }
 
   #about {
     background:
-      radial-gradient(ellipse at 82% 18%, rgba(86, 108, 121, 0.2), transparent 32rem),
-      radial-gradient(ellipse at 14% 76%, rgba(68, 88, 101, 0.16), transparent 28rem),
+      radial-gradient(
+        ellipse at 82% 18%,
+        rgba(86, 108, 121, 0.2),
+        transparent 32rem
+      ),
+      radial-gradient(
+        ellipse at 14% 76%,
+        rgba(68, 88, 101, 0.16),
+        transparent 28rem
+      ),
       linear-gradient(145deg, #111820, #0c1218 72%, #10171e);
   }
 }
@@ -952,25 +813,18 @@ onBeforeUnmount(() => {
   }
 }
 
+/* ===== REDUCED MOTION (satu blok untuk semuanya) ===== */
 @media (prefers-reduced-motion: reduce) {
-  .about-details,
-  .about-details.is-revealed {
+  .about-bg-zoom,
+  .about-bg.is-zoomed .about-bg-zoom {
+    transform: none;
     transition: none;
   }
-}
-@media (min-width: 1024px) {
-  .bio,
-  .quote {
-    max-width: 650px;
-  }
-}
 
-.quote .author {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--pikachu-yellow);
-  font-weight: 600;
-  font-style: normal; /* Biar ga miring kayak quotenya */
+  .about-details,
+  .about-details.is-revealed,
+  .animated-item {
+    transition: none;
+  }
 }
 </style>

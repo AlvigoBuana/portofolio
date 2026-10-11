@@ -5,11 +5,6 @@
       @animationFinished="handleWelcomeFinish"
     />
 
-    <ScrollVideoIntro
-      v-else-if="pagePhase === 'intro'"
-      @finished="handleIntroFinish"
-    />
-
     <main v-else class="relative w-full overflow-x-clip">
       <div class="scroll-progress" aria-hidden="true"></div>
 
@@ -57,7 +52,6 @@ import '~/assets/styles.css'
 
 // === IMPORT MANUAL (Komponen Layar Awal) ===
 import WelcomeScreen from '~/components/welcome.vue'
-import ScrollVideoIntro from '~/components/scroll-video-intro.vue'
 import Navbar from '~/components/navbar.vue'
 import Home from '~/components/home.vue'
 import About from '~/components/about.vue'
@@ -71,10 +65,6 @@ const LazyFooter = defineAsyncComponent(() => import('~/components/footer.vue'))
 // --- LOGIC WELCOME ---
 const pagePhase = ref('welcome')
 const handleWelcomeFinish = () => {
-  pagePhase.value = 'intro'
-}
-
-const handleIntroFinish = () => {
   document.documentElement.style.scrollBehavior = 'auto'
   window.scrollTo(0, 0)
   pagePhase.value = 'main'

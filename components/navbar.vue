@@ -58,6 +58,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { scrollToSection } from '~/utils/navigation.js'
 
 const menuItems = [
   { section: 'home', label: 'Home' },
@@ -122,39 +123,33 @@ const onNavClick = (sectionId) => {
   isMobileMenuOpen.value = false
   activeSection.value = sectionId
 
-  const section = document.getElementById(sectionId)
-  if (!section) return
-
-  const scrollTarget = section.closest('.home-scroll-track, .about-track') ?? section
-  const topPosition = Math.max(
-    0,
-    scrollTarget.getBoundingClientRect().top + window.scrollY,
-  )
-
-  window.dispatchEvent(new Event('portfolio:navigate'))
-  window.clearTimeout(navigationTimeoutId)
-  isProgrammaticNavigation = true
-  navigationTimeoutId = window.setTimeout(() => {
-    isProgrammaticNavigation = false
-  }, 1500)
-
-  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? 'instant'
-    : 'smooth'
-  window.scrollTo({ top: topPosition, behavior })
+  const topPosition = scrollToSection(sectionId)
+  if (topPosition === null) return
 
   isHidden.value = false
   isScrolled.value = topPosition > 50
   lastScrollY = topPosition
 }
 
+// Navbar jangan menghilang selama scroll programatik, dari tombol mana pun
+const handlePortfolioNavigate = () => {
+  window.clearTimeout(navigationTimeoutId)
+  isProgrammaticNavigation = true
+  isHidden.value = false
+  navigationTimeoutId = window.setTimeout(() => {
+    isProgrammaticNavigation = false
+  }, 1500)
+}
+
 onMounted(() => {
   if (navbarRef.value) { navbarHeight = navbarRef.value.offsetHeight }
   window.addEventListener('scroll', handleScroll)
+  window.addEventListener('portfolio:navigate', handlePortfolioNavigate)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('portfolio:navigate', handlePortfolioNavigate)
   window.clearTimeout(navigationTimeoutId)
 })
 </script>
