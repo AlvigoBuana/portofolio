@@ -466,19 +466,26 @@ onBeforeUnmount(() => {
   transform: translate(calc(-50% + 82%), -50%) scale(0.82);
 }
 
-.project-card--left:hover,
-.project-card--right:hover {
-  z-index: 4;
-  opacity: 0.9;
-  filter: saturate(0.9) brightness(0.92);
-}
+/*
+  Hover kartu samping: z-index TIDAK dinaikkan (tetap di bawah kartu tengah),
+  dan kartu membesar ke arah luar saja. Tepi dalam kartu dijaga tetap di posisi
+  yang sama (offset = 41% + scale / 2), jadi tidak pernah masuk ke kartu tengah.
+  Hanya aktif di perangkat yang benar-benar punya hover (bukan sentuh).
+*/
+@media (hover: hover) {
+  .project-card--left:hover,
+  .project-card--right:hover {
+    opacity: 0.9;
+    filter: saturate(0.9) brightness(0.92);
+  }
 
-.project-card--left:hover {
-  transform: translate(calc(-50% - 82%), -50%) scale(0.86);
-}
+  .project-card--left:hover {
+    transform: translate(calc(-50% - 84%), -50%) scale(0.86);
+  }
 
-.project-card--right:hover {
-  transform: translate(calc(-50% + 82%), -50%) scale(0.86);
+  .project-card--right:hover {
+    transform: translate(calc(-50% + 84%), -50%) scale(0.86);
+  }
 }
 
 /* ----- Isi kartu ----- */
@@ -851,12 +858,14 @@ onBeforeUnmount(() => {
     transform: translate(calc(-50% + 79%), -50%) scale(0.78);
   }
 
-  .project-card--left:hover {
-    transform: translate(calc(-50% - 79%), -50%) scale(0.81);
-  }
+  @media (hover: hover) {
+    .project-card--left:hover {
+      transform: translate(calc(-50% - 80.5%), -50%) scale(0.81);
+    }
 
-  .project-card--right:hover {
-    transform: translate(calc(-50% + 79%), -50%) scale(0.81);
+    .project-card--right:hover {
+      transform: translate(calc(-50% + 80.5%), -50%) scale(0.81);
+    }
   }
 
   .project-image-wrapper {

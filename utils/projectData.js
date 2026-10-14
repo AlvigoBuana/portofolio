@@ -19,7 +19,7 @@ export const projectsData = [
     imageUrl: "/projects/portfolio.png",
     liveUrl: "https://alvigowb.com",
     repoUrl: "https://github.com/AlvigoBuana/portofolio",
-    tech: ["Vue", "Vite", "Tailwind"]
+    tech: ["Vue", "Tailwind"]
   },
 
   {
@@ -30,7 +30,7 @@ export const projectsData = [
     imageUrl: "/projects/wuwacalculator.png",
     liveUrl: "",
     repoUrl: "https://github.com/AlvigoBuana/calculator_wuthering_waves",
-    tech: ["HTML", "CSS", "JS"]
+    tech: ["Python"]
   },
   {
     id: 4,
@@ -50,7 +50,7 @@ export const projectsData = [
     imageUrl: "/projects/ai-news.png",
     liveUrl: "https://ai-news-alvigo.vercel.app",
     repoUrl: "",
-    tech: ["React", "Vite"]
+    tech: ["React"]
   },
   {
     id: 6,

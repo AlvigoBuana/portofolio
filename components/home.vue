@@ -12,7 +12,6 @@
           <div class="home-video-overlay" aria-hidden="true"></div>
         </div>
       </div>
-      <div class="home-video-overlay" aria-hidden="true"></div>
       <div
         class="content-wrapper home-content"
         :class="{ 'is-revealed': isHomeRevealed }"
@@ -470,8 +469,7 @@ onBeforeUnmount(() => {
   margin-bottom: 1.5rem;
   border: 1px solid rgba(240, 220, 171, 0.3);
   border-radius: 9999px;
-  background: rgba(16, 14, 10, 0.48);
-  backdrop-filter: blur(12px);
+  background: rgba(16, 14, 10, 0.62);
   color: rgb(231, 192, 19);
   font-size: 0.875rem;
   font-weight: 500;
@@ -548,8 +546,7 @@ onBeforeUnmount(() => {
   padding: 0.5rem 1rem;
   border: 1px solid rgba(240, 220, 171, 0.24);
   border-radius: 9999px;
-  background: rgba(16, 14, 10, 0.48);
-  backdrop-filter: blur(10px);
+  background: rgba(16, 14, 10, 0.62);
   color: #d1d9db;
   font-size: 0.875rem;
   transition: 0.3s;
@@ -567,6 +564,7 @@ onBeforeUnmount(() => {
 }
 .btn-projects,
 .btn-contact {
+  background: rgba(16, 14, 10, 0.55);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -615,8 +613,7 @@ onBeforeUnmount(() => {
   height: 3rem;
   border: 1px solid rgba(243, 239, 228, 0.26);
   border-radius: 0.5rem;
-  background: rgba(16, 14, 10, 0.48);
-  backdrop-filter: blur(10px);
+  background: rgba(16, 14, 10, 0.62);
   transition: 0.3s;
 }
 .social-link:hover {
